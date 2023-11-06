@@ -1,0 +1,22 @@
+{
+    "name": "migliori/php-pdo-database-class",
+    "description": "The DB class is a database abstraction layer that provides a simple, consistent interface for interacting with different types of databases. It handles connection management, query execution, pagination and result processing",
+    "type": "library",
+    "require": {
+        "php": ">=7.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.4"
+    },
+    "license": "GPL-3.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "Migliori\\PhpPdoDatabaseClass\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Gilles Migliori"
+        }
+    ]
+}
