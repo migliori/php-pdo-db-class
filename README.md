@@ -33,11 +33,13 @@ Clone / download or install with Composer
 2. Require `database/db-connect.php` and you can connect to both your localhost and production server using `$db = new DB();` without any argument.
 
     ```php
+    use database\DB;
+
     // register the database connection settings
-    require_once 'phpformbuilder/database/db-connect.php';
+    require_once 'database/db-connect.php';
 
     // Include the database class
-    require_once 'phpformbuilder/database/DB.php';
+    require_once 'database/DB.php';
 
     // Then connect to the database
     $db = new DB();
