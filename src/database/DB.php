@@ -1621,18 +1621,17 @@ class DB
                     $extracted_key = str_replace('.', '_', $extracted_key);
 
                     // avoid duplicate keys
-                    if (isset($placeholders[$extracted_key])) {
-                        // use a letter index before the $extracted_key
-                        // because Firebird bugs if we use $extracted_key . '_' . $index
-                        $index = 1;
-                        $alphabet = range('a', 'z');
+                    // and use a prefix to avoid collisions with the $values in select/update queries
+                    // use a letter index before the $extracted_key
+                    // because Firebird bugs if we use $extracted_key . '_' . $index
+                    $index = 0;
+                    $alphabet = range('a', 'z');
+                    $indexed_key = $alphabet[$index] . '_' . $extracted_key;
+                    while (isset($placeholders[$indexed_key])) {
+                        $index++;
                         $indexed_key = $alphabet[$index] . '_' . $extracted_key;
-                        while (isset($placeholders[$indexed_key])) {
-                            $index++;
-                            $indexed_key = $alphabet[$index] . '_' . $extracted_key;
-                        }
-                        $extracted_key = $indexed_key;
                     }
+                    $extracted_key = $indexed_key;
 
                     // If no <> = was specified...
                     if (trim(str_replace('.', '_', $key)) == $extracted_key) {
