@@ -19,7 +19,7 @@ Clone / download or install with Composer
 
 ## Usage/Examples
 
-1. Open `phpformbuilder/database/db-connect.php` in your code editor and set the followings constants to connect to your database:
+1. Open `database/db-connect.php` in your code editor and set the followings constants to connect to your database:
 
     ```php
     PDO_DRIVER // 'mysql', 'firebird', 'oci' or 'pgsql'
