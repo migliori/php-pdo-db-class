@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace database;
 
 use PDO;
@@ -29,7 +31,7 @@ use PDO;
  *
  * @api
  * @author Gilles Migliori
- * @version 2.0
+ * @version 2.1
  * @license GNU General Public License v3.0
  * @link https://github.com/gilles-migliori/php-pdo-db-class
  * @link https://packagist.org/packages/gilles-migliori/php-pdo-db-class
@@ -49,9 +51,9 @@ class DB
     private $num_rows_query_string = "'*'"; // query string for numRows()'s SELECT COUNT()
     private $pdo; // PDO internal object
     private $pdo_driver;
+    private $username;
     private $query = null; // PDO Statement
     private $row_count = 0; // number of rows returned by the latest query
-    private $username = '';
 
     /**
      * Creates the DB object and & connects to a MySQL PDO database.
@@ -136,7 +138,7 @@ class DB
         } catch (\PDOException $e) {
             // If connection was not successful
             $error = 'Database Connection Error (' . __METHOD__ . '): ' .
-                \utf8_encode($e->getMessage()) . '<br>' . $dsn;
+            mb_convert_encoding($e->getMessage(), "UTF-8", mb_detect_encoding($e->getMessage())) . '<br>' . $dsn;
 
             // Send the error to the error event handler
             $this->errorEvent($error, $e->getCode());
@@ -611,7 +613,7 @@ class DB
                 $sql['order_by'] = ' ORDER BY ' . implode(', ', $extras['order_by']);
             } else { // It's a string
                 // Specify the order
-                $sql['order_by'] = ' ORDER BY ' . trim($extras['order_by']);
+                $sql['order_by'] = ' ORDER BY ' . trim((string) $extras['order_by']);
             }
         }
 
@@ -622,7 +624,7 @@ class DB
                 $sql['group_by'] = ' GROUP BY ' . implode(', ', $extras['group_by']);
             } else { // It's a string
                 // Specify the group
-                $sql['group_by'] = ' GROUP BY ' . trim($extras['group_by']);
+                $sql['group_by'] = ' GROUP BY ' . trim((string) $extras['group_by']);
             }
         }
 
@@ -1520,10 +1522,12 @@ class DB
     {
 
         // Send this error to the PHP error log
-        if (empty($error_code)) {
-            error_log($error, 0);
-        } else {
-            error_log('DB error ' . $error_code . ': ' . $error, 0);
+        if (function_exists('error_log')) {
+            if (empty($error_code)) {
+                \error_log($error, 0);
+            } else {
+                \error_log('DB error ' . $error_code . ': ' . $error, 0);
+            }
         }
 
         // register the error
@@ -1634,7 +1638,7 @@ class DB
                     $extracted_key = $indexed_key;
 
                     // If no <> = was specified...
-                    if (trim(str_replace('.', '_', $key)) == $extracted_key) {
+                    if ($alphabet[$index] . '_' . trim(str_replace('.', '_', $key)) == $extracted_key) {
                         // Add the PDO place holder with an =
                         $output[] = trim($key) . ' = :' . $extracted_key;
                     } else { // A comparison exists...
@@ -1709,7 +1713,7 @@ class DB
         }
 
         // If the number of seconds is specified...
-        if ($time !== false) {
+        if (is_float($time)) {
             // Show how long it took
             $output .= "</code></pre>\n--<strong>DEBUG " . $source . " TIMER</strong>--\n
                     <pre><code>";

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace database;
 
 /**
@@ -99,9 +101,24 @@ class Pagination extends DB
      * @param string  $url         URL of the page
      * @param integer $long        Max number of pages before and after the current page
      */
-    public function pagine($pdo_settings, $mpp, $querystring, $url, $long = 5, $rewrite_links = true, $rewrite_transition = '-', $rewrite_extension = '.html')
+    /**
+     * Paginate the results of a database query.
+     *
+     * @param array $pdo_settings The PDO settings for the database connection.
+     * @param int $mpp The number of records to display per page.
+     * @param string $querystring The query string to paginate.
+     * @param string $url The base URL for the pagination links.
+     * @param int $long The number of pages to display in the pagination navigation.
+     * @param bool $rewrite_links Whether to rewrite the pagination links.
+     * @param string $rewrite_transition The transition string to use for rewriting the links.
+     * @param string $rewrite_extension The file extension to use for rewriting the links.
+     * @return string The HTML for the pagination links.
+     */
+    public function pagine(array $pdo_settings, int $mpp, string $querystring, string $url, int $long = 5, bool $rewrite_links = true, string $rewrite_transition = '-', string $rewrite_extension = '.html'): string
     {
-        // Pour construire les liens, regarde si $url contient déjà un ?
+        $html_pagination = '';
+
+        // To build the links, check if $url already contains a ?
         $t   = $this->rewrite_transition = $rewrite_transition;
         $ext = $this->rewrite_extension = $rewrite_extension;
         $url = $this->removePreviousQuerystring($url, $querystring, $rewrite_links);
@@ -185,7 +202,7 @@ class Pagination extends DB
                         }
                     }
                 }    // Modification of the request
-                $pdo_settings_with_limit = $this->addRequestLimit($pdo_settings, $p, $mpp);
+                $pdo_settings_with_limit = $this->addRequestLimit($pdo_settings, (int) $p, $mpp);
                 $this->getRecords($pdo_settings_with_limit); // new set of records with LIMIT clause
                 $current_page_number = parent::rowCount(); // display 'results n to m on x // start = $start // end = $end // total = $number
                 $start = $mpp * ($p - 1) + 1;    // no. per page x current page.
@@ -202,18 +219,19 @@ class Pagination extends DB
             } else {
                 $this->results = '<p class="text-right text-semibold">résultats ' . $start . ' à ' . $end . ' sur ' . $nbre . '</p>' . "\n";
             }
-            $htmlPagination = '';
-            if (!empty($this->results)) {
-                $htmlPagination .= '<ul class="' . $this->pagination_class . '">' . "\n";
-                $htmlPagination .= $this->pagine . "\n";
-                $htmlPagination .= '</ul>' . "\n";
-            }
-            $htmlPagination .= '<div class="heading-elements pt-2 pr-3">' . "\n";
-            $htmlPagination .= $this->results;
-            $htmlPagination .= '</div>' . "\n";
 
-            return $htmlPagination;
+            if (!empty($this->results)) {
+                $html_pagination .= '<ul class="' . $this->pagination_class . '">' . "\n";
+                $html_pagination .= $this->pagine . "\n";
+                $html_pagination .= '</ul>' . "\n";
+            }
+
+            $html_pagination .= '<div class="heading-elements pt-2 pr-3">' . "\n";
+            $html_pagination .= $this->results;
+            $html_pagination .= '</div>' . "\n";
         }
+
+        return $html_pagination;
     }
 
     /**
@@ -221,9 +239,9 @@ class Pagination extends DB
      *
      * @param array $user_options (Optional) An associative array containing the
      *                            options names as keys and values as data.
-     * @return $this
+     * @return void
      */
-    public function setOptions($user_options = array())
+    public function setOptions(array $user_options = array()): void
     {
         $options = array('active_class', 'disabled_class', 'first_markup', 'pagination_class', 'previous_markup', 'next_markup', 'last_markup', 'rewrite_transition', 'rewrite_extension');
         foreach ($user_options as $key => $value) {
@@ -241,7 +259,7 @@ class Pagination extends DB
      * @param int $mpp The items per page
      * @return array The updated PDO settings array
      */
-    private function addRequestLimit($pdo_settings, $p, $mpp)
+    private function addRequestLimit(array $pdo_settings, int $p, int $mpp): array
     {
         if ($pdo_settings['function'] === 'select') {
             $pdo_settings['extras']['limit'] = (($p - 1) * $mpp)  . ',' . $mpp;
@@ -259,8 +277,9 @@ class Pagination extends DB
      * Executes the selected PDO function based on the provided PDO settings array.
      *
      * @param array $pdo_settings The PDO settings array
+     * @return void
      */
-    private function getRecords($pdo_settings)
+    private function getRecords(array $pdo_settings): void
     {
         if ($pdo_settings['function'] === 'select') {
             parent::select(
@@ -287,7 +306,7 @@ class Pagination extends DB
      * @param bool $rewrite_links Whether or not the links are being rewritten
      * @return string The updated URL
      */
-    private function removePreviousQuerystring($url, $querystring, $rewrite_links)
+    private function removePreviousQuerystring(string $url, string $querystring, bool $rewrite_links): string
     {
         if ($rewrite_links === true) {
             $find = array('`' . $this->rewrite_transition . $querystring . '[0-9]+`', '`' . $this->rewrite_extension . '`');
