@@ -5,6 +5,12 @@
 
 This DB class provides a set of simple, intuitive methods for executing queries and retrieving data. It handles pagination, error handling and debugging.
 
+The code is dulley documented with PHPDOC. It provides types & type hinting and follows the highest coding standards (PHPSTAN Level 9).
+
+## Requirements
+
+PHP ^7.4, PHP 8.x
+
 ## Documentation
 
 [PHP PDO Database class - Detailed documentation, functions reference & code samples](https://www.phpformbuilder.pro/documentation/php-pdo-database-class.php)

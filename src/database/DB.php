@@ -31,7 +31,7 @@ use PDO;
  *
  * @api
  * @author Gilles Migliori
- * @version 2.1
+ * @version 2.2
  * @license GNU General Public License v3.0
  * @link https://github.com/gilles-migliori/php-pdo-db-class
  * @link https://packagist.org/packages/gilles-migliori/php-pdo-db-class
@@ -39,44 +39,48 @@ use PDO;
  */
 class DB
 {
-    public $show_errors;
-    private $debug_content = '';
+    public bool $show_errors;
+    private string $debug_content = '';
     /**
      * if $debug_mode === 'register' the debug content is available with $this->getDebugContent();
      */
-    private $debug_mode = 'echo'; // 'echo' or 'register'
-    private $driver_supports_last_insert_id;
-    private $error = ''; // error message if any failure
-    private $last_insert_id = null;
-    private $num_rows_query_string = "'*'"; // query string for numRows()'s SELECT COUNT()
-    private $pdo; // PDO internal object
-    private $pdo_driver;
-    private $username;
-    private $query = null; // PDO Statement
-    private $row_count = 0; // number of rows returned by the latest query
+    private string $debug_mode = 'echo'; // 'echo' or 'register'
+    private bool $driver_supports_last_insert_id;
+    private string $error = ''; // error message if any failure
+    private string|false $last_insert_id = false;
+    private string $num_rows_query_string = "'*'"; // query string for numRows()'s SELECT COUNT()
+    private ?PDO $pdo; // PDO internal object
+    private string $pdo_driver;
+    private ?\PDOStatement $query = null; // PDO Statement
+    private int|bool $row_count = 0; // number of rows returned by the latest query
+    private string $where_clause_sql = ''; // where clause SQL
+    /**
+     * @var array<string, string|int|bool|\DateTime|null> $where_clause_placeholders where clause placeholders
+     */
+    private array $where_clause_placeholders = [];
 
     /**
-     * Creates the DB object and & connects to a MySQL PDO database.
+     * Constructor
      *
-     * @param string $username Database user name
-     * @param string $password Database password
-     * @param string $database Database or schema name
-     * @param string $hostname [OPTIONAL] Host name of the server
-     * @param bool $show_errors [OPTIONAL] Show errors on queries or connection
-     * @return void
+     * @param bool $show_errors [OPTIONAL] If set to true, will output errors
+     * @param string $driver [OPTIONAL] Database driver
+     * @param string $hostname [OPTIONAL] Database hostname
+     * @param string $database [OPTIONAL] Database name
+     * @param string $username [OPTIONAL] Database username
+     * @param string $password [OPTIONAL] Database password
+     * @param string $port [OPTIONAL] Database port
      */
     public function __construct(
-        $show_errors = false,
-        $driver = PDO_DRIVER,
-        $hostname = DB_HOST,
-        $database = DB_NAME,
-        $username = DB_USER,
-        $password = DB_PASS,
-        $port = DB_PORT
+        bool $show_errors = false,
+        string $driver = PDO_DRIVER,
+        string $hostname = DB_HOST,
+        string $database = DB_NAME,
+        string $username = DB_USER,
+        string $password = DB_PASS,
+        string $port = DB_PORT
     ) {
         $this->pdo_driver  = $driver;
         $this->show_errors = $show_errors;
-        $this->username    = $username;
 
         $this->driver_supports_last_insert_id = false;
         if ($driver == 'mysql') {
@@ -120,7 +124,7 @@ class DB
             );
 
             // If we are connected...
-            if ($this->pdo && $this->show_errors) {
+            if ($this->isConnected() && $this->show_errors) {
                 // The default error mode for PDO is \PDO::ERRMODE_SILENT.
                 // With this setting left unchanged, you'll need to manually
                 // fetch errors, after performing a query
@@ -138,7 +142,7 @@ class DB
         } catch (\PDOException $e) {
             // If connection was not successful
             $error = 'Database Connection Error (' . __METHOD__ . '): ' .
-            mb_convert_encoding($e->getMessage(), "UTF-8", mb_detect_encoding($e->getMessage())) . '<br>' . $dsn;
+                mb_convert_encoding($e->getMessage(), "UTF-8", mb_detect_encoding($e->getMessage())) . '<br>' . $dsn;
 
             // Send the error to the error event handler
             $this->errorEvent($error, $e->getCode());
@@ -149,15 +153,15 @@ class DB
      * Executes a SQL statement using PDO
      *
      * @param string $sql SQL
-     * @param array $placeholders [OPTIONAL] Associative array placeholders for binding to SQL
-     *                            array("name' => 'Cathy', 'city' => 'Cardiff')
+     * @param array<string, string|int|bool|\DateTime|null> $placeholders [OPTIONAL] Associative array placeholders for binding to SQL
      * @param bool $debug [OPTIONAL] If set to true, will output results and query info
-     * @return bool true if success, otherwise false
+     * @return bool|string true if success, otherwise false, or last_insert_id if an INSERT statement
+     * @throws \PDOException if there was an error executing the query
      */
-    public function execute($sql, $placeholders = false, $debug = false)
+    public function execute(string $sql, array $placeholders = [], bool $debug = false): mixed
     {
         // remove the line breaks
-        $sql = \str_replace(array("\r", "\n"), '', $sql);
+        $sql = \str_replace(["\r", "\n"], '', $sql);
 
         // Set the variable initial values
         $time  = false;
@@ -166,101 +170,112 @@ class DB
         $this->row_count = 0;
 
         // Is there already a transaction pending? No nested transactions in MySQL!
-        $existing_transaction = $this->pdo->inTransaction();
+        $existing_transaction = $this->pdo ? $this->pdo->inTransaction() : false;
 
         // Is this a SQL SELECT statement? Check the first word...
-        $is_delete = (\strtoupper(strtok(trim($sql), ' '))) === 'DELETE';
-        $is_insert = (\strtoupper(strtok(trim($sql), ' '))) === 'INSERT';
-        $is_select = (\strtoupper(strtok(trim($sql), ' '))) === 'SELECT';
+        $is_select = false;
+        $is_delete = false;
+        $is_insert = false;
+        if ($token = strtok(trim($sql), ' ')) {
+            $is_select = (\strtoupper($token) === 'SELECT');
+            $is_delete = (\strtoupper($token) === 'DELETE');
+            $is_insert = (\strtoupper($token) === 'INSERT');
+        }
 
         // Set a flag
         $return = false;
 
         try {
             $is_sql_auto_commit = $this->isSqlAutoCommit($sql);
-            // Begin a transaction
-            if (!$existing_transaction && !$is_sql_auto_commit) {
-                $this->pdo->beginTransaction();
-            }
 
-            // Create the query object
-            $this->query = $this->pdo->prepare($sql);
+            if (!$this->pdo instanceof \PDO) {
+                throw new \PDOException('No database connection');
+            } else {
 
-            // If there are values in the passed in array
-            if (!empty($placeholders) && is_array($placeholders)) {
-                // Loop through the placeholders and values
-                foreach ($placeholders as $field => $value) {
-                    // Determine the datatype
-                    if (is_int($value)) {
-                        $datatype = \PDO::PARAM_INT;
-                    } elseif (is_bool($value)) {
-                        $datatype = \PDO::PARAM_BOOL;
-                    } elseif (is_null($value)) {
-                        $datatype = \PDO::PARAM_NULL;
-                    } elseif ($value instanceof \DateTime) {
-                        $value = $value->format('Y-m-d H:i:s');
-                        $placeholders[$field] = $value;
-                        $datatype = \PDO::PARAM_STR;
-                    } else {
-                        $datatype = \PDO::PARAM_STR;
-                    }
-
-                    // Bind the placeholder and value to the query
-                    $this->query->bindValue($field, $value, $datatype);
-                }
-            }
-
-            // Start a timer
-            $time_start = microtime(true);
-
-            // Execute the query
-            $this->query->execute();
-
-            $return = true;
-            if ($is_insert && $this->driver_supports_last_insert_id) {
-                $this->last_insert_id = $this->pdo->lastInsertId();
-                $return = $this->last_insert_id;
-            }
-
-            // Find out how long the query took
-            $time_end = microtime(true);
-            $time = $time_end - $time_start;
-
-            if ($is_select) {
-                $this->row_count = $this->numRows($placeholders, $debug);
-            } elseif ($is_delete || $is_insert) {
-                $this->row_count = $this->query->rowCount();
-                if ($this->row_count < 1) {
-                    // return false but don't throw any error if a deletion fails
-                    $return = false;
-                    if ($is_insert) {
-                        $msg = 'Failed to insert record(s)';
-                        throw new \PDOException($msg);
-                    }
-                }
-            }
-
-            // Debug only
-            if ($debug) {
-                // Rollback the transaction
+                // Begin a transaction
                 if (!$existing_transaction && !$is_sql_auto_commit) {
-                    $this->pdo->rollback();
+                    $this->pdo->beginTransaction();
                 }
 
-                $interpolated_sql = $this->interpolateQuery($sql, $placeholders);
-                // Output debug information
-                $this->dumpDebug(
-                    __FUNCTION__,
-                    $interpolated_sql,
-                    $placeholders,
-                    $this->query,
-                    false,
-                    $time,
-                    $this->row_count
-                );
-            } elseif (!$existing_transaction && !$is_sql_auto_commit) {
-                // Commit the transaction
-                $this->pdo->commit();
+                // Create the query object
+                $this->query = $this->pdo->prepare($sql);
+
+                // If there are values in the passed in array
+                if (!empty($placeholders)) {
+                    // Loop through the placeholders and values
+                    foreach ($placeholders as $field => $value) {
+                        // Determine the datatype
+                        if (\is_int($value)) {
+                            $datatype = \PDO::PARAM_INT;
+                        } elseif (\is_bool($value)) {
+                            $datatype = \PDO::PARAM_BOOL;
+                        } elseif (\is_null($value)) {
+                            $datatype = \PDO::PARAM_NULL;
+                        } elseif ($value instanceof \DateTime) {
+                            $value = $value->format('Y-m-d H:i:s');
+                            $placeholders[$field] = $value;
+                            $datatype = \PDO::PARAM_STR;
+                        } else {
+                            $datatype = \PDO::PARAM_STR;
+                        }
+
+                        // Bind the placeholder and value to the query
+                        $this->query->bindValue($field, $value, $datatype);
+                    }
+                }
+
+                // Start a timer
+                $time_start = microtime(true);
+
+                // Execute the query
+                $this->query->execute();
+
+                $return = true;
+                if ($is_insert && $this->driver_supports_last_insert_id) {
+                    $this->last_insert_id = $this->pdo->lastInsertId();
+                    $return = $this->last_insert_id;
+                }
+
+                // Find out how long the query took
+                $time_end = microtime(true);
+                $time = $time_end - $time_start;
+
+                if ($is_select) {
+                    $this->row_count = $this->numRows($placeholders, $debug);
+                } elseif ($is_delete || $is_insert) {
+                    $this->row_count = $this->query->rowCount();
+                    if ($this->row_count < 1) {
+                        // return false but don't throw any error if a deletion fails
+                        $return = false;
+                        if ($is_insert) {
+                            $msg = 'Failed to insert record(s)';
+                            throw new \PDOException($msg);
+                        }
+                    }
+                }
+
+                // Debug only
+                if ($debug) {
+                    // Rollback the transaction
+                    if (!$existing_transaction && !$is_sql_auto_commit) {
+                        $this->pdo->rollback();
+                    }
+
+                    $interpolated_sql = $this->interpolateQuery($sql, $placeholders);
+                    // Output debug information
+                    $this->dumpDebug(
+                        __FUNCTION__,
+                        $interpolated_sql,
+                        $placeholders,
+                        $this->query,
+                        false,
+                        $time,
+                        $this->row_count
+                    );
+                } elseif (!$existing_transaction && !$is_sql_auto_commit) {
+                    // Commit the transaction
+                    $this->pdo->commit();
+                }
             }
         } catch (\PDOException $e) { // If there was an error...
             $return = false;
@@ -288,7 +303,7 @@ class DB
             }
 
             // Rollback the transaction
-            if (!$existing_transaction && !$is_sql_auto_commit) {
+            if (!$existing_transaction && !$is_sql_auto_commit && $this->pdo instanceof \PDO) {
                 $this->pdo->rollback();
             }
         } catch (\Exception $e) { // If there was an error...
@@ -315,7 +330,7 @@ class DB
             }
 
             // Rollback the transaction
-            if (!$existing_transaction && !$is_sql_auto_commit) {
+            if (!$existing_transaction && isset($is_sql_auto_commit) && !$is_sql_auto_commit && $this->pdo instanceof \PDO) {
                 $this->pdo->rollback();
             }
         }
@@ -331,34 +346,39 @@ class DB
      * Executes a SQL query using PDO
      *
      * @param string $sql SQL
-     * @param array $placeholders [OPTIONAL] Associative array placeholders for binding to SQL
+     * @param array<string, string|int|bool|\DateTime|null> $placeholders [OPTIONAL] Associative array placeholders for binding to SQL
      *                            array('name' => 'Cathy', 'city' => 'Cardiff')
      * @param bool $debug [OPTIONAL] If set to true, will output results and query info
      * @return bool true if success otherwise false
+     * @throws \PDOException if there was a database error
+     * @throws \Exception if there was a general error
      */
     public function query(
-        $sql,
-        $placeholders = false,
-        $debug = false
-    ) {
-
+        string $sql,
+        array $placeholders = [],
+        bool $debug = false
+    ): bool {
         // Set the variable initial values
-        $this->query = false;
-        $return      = false;
-        $time        = false;
+        $this->query = null;
+        $return = false;
+        $time = false;
 
         // reset the global db_row_count
         $this->row_count = 0;
 
         // remove the line breaks
-        $sql = \str_replace(array("\r", "\n"), '', $sql);
+        $sql = \str_replace(["\r", "\n"], '', $sql);
 
         try {
+            if (!$this->pdo instanceof \PDO) {
+                throw new \PDOException('No database connection');
+            }
+
             // Create the query object
             $this->query = $this->pdo->prepare($sql);
 
             // If there are values in the passed in array
-            if (!empty($placeholders) && is_array($placeholders)) {
+            if (!empty($placeholders)) {
                 // Loop through the placeholders and values
                 foreach ($placeholders as $field => $value) {
                     // Determine the datatype
@@ -396,7 +416,6 @@ class DB
             // Query was successful
             $return = true;
 
-
             // Debug only
             if ($debug) {
                 $interpolated_sql = $this->interpolateQuery($sql, $placeholders);
@@ -411,7 +430,7 @@ class DB
                     $this->row_count
                 );
             }
-        } catch (\PDOException $e) { // If there was an error...
+        } catch (\PDOException $e) { // If there was a database error...
             $interpolated_sql = $this->interpolateQuery($sql, $placeholders);
             // Get the error
             $err = 'Database Error (' . __METHOD__ . '):<br>'
@@ -435,8 +454,8 @@ class DB
                 );
             }
 
-            // die($e->getMessage());
-        } catch (\Exception $e) { // If there was an error...
+            throw $e;
+        } catch (\Exception $e) { // If there was a general error...
             // Get the error
             $err = 'General Error (' . __METHOD__ . '): ' . $e->getMessage();
 
@@ -458,11 +477,8 @@ class DB
                 );
             }
 
-            // die($e->getMessage());
+            throw $e;
         }
-
-        // Clean up
-        unset($query);
 
         // Return true if success and false if failure
         return $return;
@@ -472,19 +488,18 @@ class DB
      * Executes a SQL query using PDO and returns one row
      *
      * @param string $sql SQL
-     * @param array $placeholders [OPTIONAL] Associative array placeholders for binding to SQL
-     *                            array('name' => 'Cathy', 'city' => 'Cardiff')
+     * @param array<string, string|int|bool|\DateTime|null> $placeholders [OPTIONAL] Associative array placeholders for binding to SQL
+     *                          e.g.:array('name' => 'Cathy', 'city' => 'Cardiff')
      * @param bool $debug [OPTIONAL] If set to true, will output results and query info
-     * @param integer $fetch_parameters [OPTIONAL] PDO fetch style record options
+     * @param int $fetch_parameters [OPTIONAL] PDO fetch style record options
      * @return mixed Array or object with values if success otherwise false
      */
     public function queryRow(
-        $sql,
-        $placeholders = false,
-        $debug = false,
-        $fetch_parameters = \PDO::FETCH_OBJ
-    ) {
-
+        string $sql,
+        array $placeholders = [],
+        bool $debug = false,
+        int $fetch_parameters = \PDO::FETCH_OBJ
+    ): mixed {
         // It's better on resources to add LIMIT 1 to the end of your SQL
         // statement if there are multiple rows that will be returned
         $this->query($sql, $placeholders, $debug);
@@ -496,14 +511,16 @@ class DB
      * Executes a SQL query using PDO and returns a single value only
      *
      * @param string $sql SQL
-     * @param array $placeholders Associative array placeholders for binding to SQL
-     *                            array('name' => 'Cathy', 'city' => 'Cardiff')
-     * @param bool $debug If set to true, will output results and query info
+     * @param array<string, string|int|bool|\DateTime|null> $placeholders [OPTIONAL] Associative array placeholders for binding to SQL
+     *                          e.g.: array('name' => 'Cathy', 'city' => 'Cardiff')
+     * @param bool $debug [OPTIONAL] If set to true, will output results and query info
      * @return mixed A returned value from the database if success otherwise false
      */
-    public function queryValue($sql, $placeholders = false, $debug = false)
-    {
-
+    public function queryValue(
+        string $sql,
+        array $placeholders = [],
+        bool $debug = false
+    ): mixed {
         // It's better on resources to add LIMIT 1 to the end of your SQL
         // if there are multiple rows that will be returned
         $results = $this->queryRow($sql, $placeholders, $debug, \PDO::FETCH_NUM);
@@ -521,56 +538,46 @@ class DB
     /**
      * Selects records using PDO
      *
-     * @param string $from Table name with the possible joins
-     * @param array $values [OPTIONAL] Array or string containing the field names
-     *                            array('name', 'city') or 'name, city'
-     * @param array/string [OPTIONAL] $where Array containing the fields and values or a string
-     *                            $where = array();
-     *                            $where['id >'] = 1234;
-     *                            $where[] = 'first_name IS NOT NULL';
-     *                            $where['some_value <>'] = 'text';
-     * @param array [OPTIONAL] $extras Array containing the optional following pairs of key => values:
-     *    'select_distinct' => If set to true the query will use
-     *                          'SELECT DISTINCT' instead of 'SELECT'.
-     *                          Default is false.
-     *    'order_by'        => Array or string containing field(s) order,
-     *                         or null to not specify any order.
-     *                         Default is null.
-     *    'group_by'        => Array or string containing field(s) for group
-     *                         Default is null.
-     *    'limit'           => Integer or string containing the maximum number of results,
-     *                         or null to not specify any limit. E.g:
-     *                         'limit' => 10
-     *                         'limit' => '10, 20'
-     * @param bool $debug [OPTIONAL] If set to true, will output results and query info
-     * @return bool true if success otherwise false
+     * @param string                                             $from       Table name with the possible joins
+     * @param string|array<string>                               $values     [OPTIONAL] Array or string containing the field names
+     * @param array<int|string, int<min, -1>|int<1, max>|string>|string $where      [OPTIONAL] Array containing the fields and values or a string
+     * @param array<string, bool|null|int|string|array<string>>  $extras     [OPTIONAL] Array containing the optional following pairs of key => values:
+     *                                                  - 'select_distinct' => If set to true the query will use 'SELECT DISTINCT' instead of 'SELECT'. Default is false.
+     *                                                  - 'order_by' => Array or string containing field(s) order,
+     *                                                     or null to not specify any order. Default is null.
+     *                                                  - 'group_by' => Array or string containing field(s) for group. Default is null.
+     *                                                  - 'limit' => Integer or string containing the maximum number of results,
+     *                                                     or null to not specify any limit. E.g: 'limit' => 10 or 'limit' => '10, 20'.
+     * @param bool                                               $debug      [OPTIONAL] If set to true, will output results and query info
+     *
+     * @return mixed true if success otherwise false
      */
     public function select(
-        $from,
-        $values = '*',
-        $where = false,
-        $extras = array(),
-        $debug = false
-    ) {
-        $default_extras = array(
+        string $from,
+        mixed $values = '*',
+        mixed $where = [],
+        array $extras = [],
+        bool $debug = false
+    ): mixed {
+        $default_extras = [
             'select_distinct' => false,
-            'order_by'        => null,
-            'group_by'        => null,
-            'limit'           => null
-        );
+            'order_by' => null,
+            'group_by' => null,
+            'limit' => null
+        ];
 
-        $extras = \array_merge($default_extras, $extras);
+        $extras = array_merge($default_extras, $extras);
 
-        $sql = array(
-            'select'    => '',
-            'distinct'  => '',
-            'values'    => '',
-            'from'      => '',
-            'where'     => '',
-            'order_by'  => '',
-            'group_by'  => '',
-            'limit'     => ''
-        );
+        $sql = [
+            'select' => '',
+            'distinct' => '',
+            'values' => '',
+            'from' => '',
+            'where' => '',
+            'order_by' => '',
+            'group_by' => '',
+            'limit' => ''
+        ];
 
         $sql['select'] = 'SELECT ';
 
@@ -588,7 +595,7 @@ class DB
         if ($extras['select_distinct']) {
             $sql['distinct'] .= 'DISTINCT ';
             // register the COUNT(DISTINCT) values for numRows
-            if (\is_string($extras['select_distinct'])) {
+            if (is_string($extras['select_distinct'])) {
                 $this->num_rows_query_string = 'DISTINCT ' . $extras['select_distinct'];
             }
         }
@@ -599,12 +606,12 @@ class DB
         if (is_array($where)) {
             $where = array_filter($where);
         }
-        if (empty($where)) {
-            $where = false;
-        }
-        $where_array = $this->whereClause($where);
 
-        $sql['where'] = $where_array['sql'];
+        $this->whereClause($where);
+
+        if (!empty($this->where_clause_sql)) {
+            $sql['where'] = $this->where_clause_sql;
+        }
 
         if (!is_null($extras['order_by'])) {
             // If the order values are in an array
@@ -628,7 +635,7 @@ class DB
             }
         }
 
-        if (!is_null($extras['limit'])) {
+        if (is_int($extras['limit']) || \is_string($extras['limit'])) {
             // Specify the limit
             $sql['limit'] = $this->getLimitSqlFromDriver($extras['limit']);
         }
@@ -642,33 +649,32 @@ class DB
         // Execute the query and return the results
         return $this->query(
             $final_sql,
-            $where_array['placeholders'],
+            $this->where_clause_placeholders,
             $debug
         );
     }
 
     /**
      * Select COUNT records using PDO
+     *
      * @param string $from Table name with the possible joins
-     * @param array $values  [OPTIONAL] Array of fieldnames => aliases to be returned.
-     *                       Default will count the number of records and return it with the rows_count alias.
-     * @param array/string [OPTIONAL] $where Array containing the fields and values or a string
+     * @param array<string, string>|string $values [OPTIONAL] Array of fieldnames => aliases to be returned.
+     *                             Default will count the number of records and return it with the rows_count alias.
+     * @param array<int|string, int<min, -1>|int<1, max>|string>|string $where [OPTIONAL] Array containing the fields and values or a string
      *                            $where = array();
      *                            $where['id >'] = 1234;
      *                            $where[] = 'first_name IS NOT NULL';
      *                            $where['some_value <>'] = 'text';
      * @param bool $debug [OPTIONAL] If set to true, will output results and query info
-     * @return mixed the record row or false if no record has been found
+     * @return mixed The record row or false if no record has been found
      */
     public function selectCount(
-        $from,
-        $values = array(
-            '*' => 'rows_count'
-        ),
-        $where = false,
-        $debug = false
-    ) {
-        $count_values = array();
+        string $from,
+        mixed $values = ['*' => 'rows_count'],
+        mixed $where = [],
+        bool $debug = false
+    ): mixed {
+        $count_values = [];
         // If the values are in an array
         if (is_array($values)) {
             // Build the COUNT queries with aliases
@@ -687,7 +693,7 @@ class DB
             $from,
             $count_values,
             $where,
-            array(),
+            [],
             $debug
         );
 
@@ -698,32 +704,31 @@ class DB
      * Selects a single record using PDO
      *
      * @param string $from Table name with the possible joins
-     * @param array $values [OPTIONAL] Array or string containing the field names
-     *                            array('name', 'city') or 'name, city'
-     * @param array/string [OPTIONAL] $where Array containing the fields and values or a string
+     * @param string|array<string> $values [OPTIONAL] Array or string containing the field names
+     *                             array('name', 'city') or 'name, city'
+     * @param array<int|string, int<min, -1>|int<1, max>|string>|string $where [OPTIONAL] Array containing the fields and values or a string
      *                            $where = array();
      *                            $where['id >'] = 1234;
      *                            $where[] = 'first_name IS NOT NULL';
      *                            $where['some_value <>'] = 'text';
      * @param bool $debug [OPTIONAL] If set to true, will output results and query info
-     * @param integer $fetch_parameters [OPTIONAL] PDO fetch style record options
-     * @return mixed Array with values if success otherwise false
+     * @param int $fetch_parameters [OPTIONAL] PDO fetch style record options
+     * @return mixed Array or object with values if success otherwise false
      */
     public function selectRow(
-        $from,
-        $values = '*',
-        $where = false,
-        $debug = false,
-        $fetch_parameters = \PDO::FETCH_OBJ
-    ) {
-
-        $sql = array(
-            'select'    => '',
-            'values'    => '',
-            'from'      => '',
-            'where'     => '',
-            'limit'     => ''
-        );
+        string $from,
+        mixed $values = '*',
+        mixed $where = [],
+        bool $debug = false,
+        int $fetch_parameters = \PDO::FETCH_OBJ
+    ): mixed {
+        $sql = [
+            'select' => '',
+            'values' => '',
+            'from' => '',
+            'where' => '',
+            'limit' => ''
+        ];
 
         $sql['select'] = 'SELECT ';
 
@@ -742,12 +747,12 @@ class DB
         if (is_array($where)) {
             $where = array_filter($where);
         }
-        if (empty($where)) {
-            $where = false;
-        }
-        $where_array = $this->whereClause($where);
 
-        $sql['where'] = $where_array['sql'];
+        $this->whereClause($where);
+
+        if (!empty($this->where_clause_sql)) {
+            $sql['where'] = $this->where_clause_sql;
+        }
 
         // Make sure only one row is returned
         $sql['limit'] = $this->getLimitSqlFromDriver(1);
@@ -761,29 +766,34 @@ class DB
         // Execute the query and return the results
         return $this->queryRow(
             $final_sql,
-            $where_array['placeholders'],
+            $this->where_clause_placeholders,
             $debug,
             $fetch_parameters
         );
     }
 
     /**
-     * Selects a single record using PDO
+     * Selects a single value using PDO
      *
      * @param string $from Table name with the possible joins
-     * @param string $field The name of the field to return
-     * @param array/string [OPTIONAL] $where Array containing the fields and values or a string
-     *                            $where = array();
-     *                            $where['id >'] = 1234;
-     *                            $where[] = 'first_name IS NOT NULL';
-     *                            $where['some_value <>'] = 'text';
+     * @param string|array<string> $field [OPTIONAL] Array or string containing the field name
+     *                                  e.g. array('name') or 'name'
+     * @param array<int|string, int<min, -1>|int<1, max>|string>|string $where [OPTIONAL] Array containing the fields and values or a string
+     *                                   e.g. $where = array();
+     *                                   $where['id >'] = 1234;
+     *                                   $where[] = 'first_name IS NOT NULL';
+     *                                   $where['some_value <>'] = 'text';
      * @param bool $debug [OPTIONAL] If set to true, will output results and query info
-     * @return mixed The value if success otherwise false
+     * @return mixed A returned value from the database if success otherwise false
      */
-    public function selectValue($from, $field, $where = false, $debug = false)
-    {
-
+    public function selectValue(
+        string $from,
+        mixed $field,
+        mixed $where = [],
+        bool $debug = false
+    ): mixed {
         // Return the row
+        // expects array<int|string, int<min, -1>|int<1, max>|string>|string, array<string, mixed>|string given.
         $results = $this->selectRow($from, $field, $where, $debug, \PDO::FETCH_NUM);
 
         // If a record was returned
@@ -800,14 +810,17 @@ class DB
      * Inserts a new record into a table using PDO
      *
      * @param string $table Table name
-     * @param array $values Associative array containing the fields and values
-     *                      array('name' => 'Cathy', 'city' => 'Cardiff')
+     * @param array<string, string|int|bool|\DateTime|null> $values Associative array containing the fields and values
+     *                          e.g. ['name' => 'Cathy', 'city' => 'Cardiff']
      * @param bool $debug [OPTIONAL] If set to true, will output results and query info
      * @return mixed Returns the last inserted ID or true otherwise false
      */
-    public function insert($table, $values, $debug = false)
-    {
-        if (!\is_array($values) || \count($values) < 1) {
+    public function insert(
+        string $table,
+        array $values,
+        bool $debug = false
+    ): mixed {
+        if (!is_array($values) || empty($values)) {
             $err = 'Failed to insert data into table "<em>' . $table . '</em>".<br>The array of values to be inserted cannot be empty.';
             $this->errorEvent($err);
 
@@ -816,7 +829,7 @@ class DB
             // Create the SQL statement with PDO placeholders created with regex
             $sql = 'INSERT INTO ' . trim($table) . ' ('
                 . implode(', ', array_keys($values)) . ') VALUES ('
-                . implode(', ', preg_replace('/^([A-Za-z0-9_-]+)$/', ':${1}', array_keys($values)))
+                . implode(', ', (array) preg_replace('/^([A-Za-z0-9_-]+)$/', ':${1}', array_keys($values)))
                 . ')';
 
             // Execute the query
@@ -828,24 +841,27 @@ class DB
      * Updates an existing record into a table using PDO
      *
      * @param string $table Table name
-     * @param array $values Associative array containing the fields and values
-     *                            array('name' => 'Cathy', 'city' => 'Cardiff')
-     * @param array/string $where [OPTIONAL] Array containing the fields and values or a string
-     *                            $where = array();
+     * @param array<string, string|int|bool|\DateTime|null> $values Associative array containing the fields and values
+     *                          e.g. ['name' => 'Cathy', 'city' => 'Cardiff']
+     * @param string|array<int|string, int|string> $where [OPTIONAL] Array containing the fields and values or a string
+     *                            $where = [];
      *                            $where['id >'] = 1234;
      *                            $where[] = 'first_name IS NOT NULL';
      *                            $where['some_value <>'] = 'text';
      * @param bool $debug [OPTIONAL] If set to true, will output results and query info
      * @return bool true if success otherwise false
      */
-    public function update($table, $values, $where = false, $debug = false)
-    {
-
+    public function update(
+        string $table,
+        array $values,
+        mixed $where = [],
+        bool $debug = false
+    ): bool {
         // Create the initial SQL
         $sql = 'UPDATE ' . trim($table) . ' SET ';
 
         // Create SQL SET values
-        $output = array();
+        $output = [];
         foreach ($values as $key => $value) {
             $output[] = $key . ' = :' . $key;
         }
@@ -857,18 +873,17 @@ class DB
         if (is_array($where)) {
             $where = array_filter($where);
         }
-        if (empty($where)) {
-            $where = false;
-        }
-        $where_array = $this->whereClause($where);
-        $sql .= $where_array['sql'];
 
-        if ($where_array['placeholders'] !== false) {
-            $values = array_merge($values, $where_array['placeholders']);
+        $this->whereClause($where);
+
+        if (!empty($this->where_clause_sql)) {
+            $sql['where'] = $this->where_clause_sql;
         }
+
+        $values = array_merge($values, $this->where_clause_placeholders);
 
         // Execute the query
-        return $this->execute(
+        return (bool) $this->execute(
             $sql,
             $values,
             $debug
@@ -879,24 +894,23 @@ class DB
      * Deletes a record from a table using PDO
      *
      * @param string $from Table name with the possible joins
-     * @param array/string $where [OPTIONAL] Array containing the fields and values or a string
-     *                            $where = array();
-     *                            $where['id >'] = 1234;
-     *                            $where[] = 'first_name IS NOT NULL';
-     *                            $where['some_value <>'] = 'text';
+     * @param array<int|string, int<min, -1>|int<1, max>|string>|string $where [OPTIONAL] Array containing the fields and values or a string
+     *                            Example array: ['id >' => 1234, 'some_value <>' => 'text']
+     *                            Example string: 'first_name IS NOT NULL'
      * @param bool $debug [OPTIONAL] If set to true, will output results and query info
-     * @return bool true if success otherwise false
+     * @return bool True if success otherwise false
      */
-    public function delete($from, $where = false, $debug = false)
-    {
+    public function delete(
+        string $from,
+        mixed $where = [],
+        bool $debug = false
+    ): bool {
         // Create the SQL WHERE clause
         if (is_array($where)) {
             $where = array_filter($where);
         }
-        if (empty($where)) {
-            $where = false;
-        }
-        $where_array = $this->whereClause($where);
+
+        $this->whereClause($where);
 
         switch ($this->pdo_driver) {
             case 'firebird':
@@ -905,10 +919,10 @@ class DB
                 if (preg_match('/([a-z_-]+) (?>INNER|LEFT|RIGHT) JOIN ([a-z_-]+) ON ([a-z_.-]+)\s*=\s*([a-z_.-]+)/i', $from, $out)) {
                     $sql = 'DELETE FROM ' . $out[1] . '
                     WHERE EXISTS (SELECT * FROM ' . $out[2] . ' WHERE ' . $out[4] . ' = ' . $out[3];
-                    $sql .= str_ireplace('WHERE', 'AND', $where_array['sql']);
+                    $sql .= str_ireplace('WHERE', 'AND', $this->where_clause_sql);
                     $sql .= ');';
                 } else {
-                    $sql .= $where_array['sql'];
+                    $sql .= $this->where_clause_sql;
                 }
                 break;
 
@@ -918,10 +932,10 @@ class DB
                 if (preg_match('/([a-z_-]+) (?>INNER|LEFT|RIGHT) JOIN ([a-z_-]+) ON ([a-z_.-]+)\s*=\s*([a-z_.-]+)/i', $from, $out)) {
                     $sql = 'DELETE ' . $out[1] . '
                     WHERE EXISTS (SELECT * FROM ' . $out[2] . ' WHERE ' . $out[4] . ' = ' . $out[3];
-                    $sql .= str_ireplace('WHERE', 'AND', $where_array['sql']);
+                    $sql .= str_ireplace('WHERE', 'AND', $this->where_clause_sql);
                     $sql .= ')';
                 } else {
-                    $sql .= $where_array['sql'];
+                    $sql .= $this->where_clause_sql;
                 }
                 break;
 
@@ -931,7 +945,7 @@ class DB
                 if (preg_match('/([a-z_-]+) (?>INNER|LEFT|RIGHT) JOIN ([a-z_-]+) ON ([a-z_.-]+)\s*=\s*([a-z_.-]+)/i', $from, $out)) {
                     $sql = 'DELETE FROM ' . $out[1] . ' USING ' . $out[2];
                 }
-                $sql .= $where_array['sql'];
+                $sql .= $this->where_clause_sql;
                 break;
 
                 // mysql
@@ -942,23 +956,26 @@ class DB
                 }
 
                 $sql = 'DELETE ' . $table_src . 'FROM ' . trim($from);
-                $sql .= $where_array['sql'];
+                $sql .= $this->where_clause_sql;
                 break;
         }
 
         // Execute the query
-        return $this->execute($sql, $where_array['placeholders'], $debug);
+        return (bool) $this->execute($sql, $this->where_clause_placeholders, $debug);
     }
 
     /**
      * Fetches the next row from a result set and returns it according to the $fetch_parameters format
      *
-     * @param int $fetch_parameters
-     * @return mixed the next row or false if we reached the end
+     * @param int $fetch_parameters [OPTIONAL] The PDO fetch style record options
+     * @return mixed The next row or false if we reached the end
      */
-    public function fetch($fetch_parameters = \PDO::FETCH_OBJ)
+    public function fetch(int $fetch_parameters = \PDO::FETCH_OBJ): mixed
     {
-        return $this->query->fetch($fetch_parameters);
+        if ($this->query instanceof \PDOStatement) {
+            return $this->query->fetch($fetch_parameters);
+        }
+        return false;
     }
 
     /**
@@ -969,13 +986,16 @@ class DB
      */
     public function fetchAll($fetch_parameters = \PDO::FETCH_OBJ)
     {
-        return $this->query->fetchAll($fetch_parameters);
+        if ($this->query instanceof \PDOStatement) {
+            return $this->query->fetchAll($fetch_parameters);
+        }
+        return false;
     }
 
     /**
      * Returns the PDO object for external use
      *
-     * @return PDO
+     * @return PDO|null The PDO object or null if it's not set
      */
     public function getPdo()
     {
@@ -993,9 +1013,11 @@ class DB
 
     /**
      * Selects all the tables into the database
+     *
+     * @param bool $debug [OPTIONAL] Set to true to enable debug mode
      * @return mixed Array with tables if success otherwise false
      */
-    public function getTables($debug = false)
+    public function getTables(bool $debug = false): mixed
     {
         switch ($this->pdo_driver) {
             case 'firebird':
@@ -1010,13 +1032,13 @@ class DB
                 $qry = 'SELECT table_name FROM information_schema.tables WHERE table_type = \'BASE TABLE\' AND table_schema NOT IN (\'pg_catalog\', \'information_schema\')';
                 break;
 
-                // mysql
+            // mysql
             default:
                 $qry = 'show full tables where Table_Type != \'VIEW\'';
                 break;
         }
 
-        $this->query($qry, false, $debug);
+        $this->query($qry, [], $debug);
 
         if ($this->row_count < 1) {
             return false;
@@ -1028,80 +1050,81 @@ class DB
     /**
      * Get the information about the columns in a given table
      *
-     * @param string $table
+     * @param string $table The name of the table
+     * @param int $fetch_parameters [OPTIONAL] The PDO fetch style record options
+     * @param bool $debug [OPTIONAL] Set to true to enable debug mode
      * @return mixed An associative array that contains the columns data or false if the table doesn't have any column.
      * [
-     * Field => The name of the column.
-     * Type => The column data type.
-     * Null => The column nullability. The value is YES if NULL values can be stored in the column, NO if not.
-     * Key => The column key if the column is indexed
-     * Default => The default value for the column.
-     * Extra => Any additional information. The value is nonempty in these cases:
-     * - auto_increment for columns that have the AUTO_INCREMENT attribute.
-     * - on update CURRENT_TIMESTAMP for TIMESTAMP or DATETIME columns that have the ON UPDATE * - CURRENT_TIMESTAMP attribute.
-     * - VIRTUAL GENERATED or STORED GENERATED for generated columns.
-     * - DEFAULT_GENERATED for columns that have an expression default value.
+     *     'Field' => string, The name of the column.
+     *     'Type' => string, The column data type.
+     *     'Null' => string, The column nullability. The value is YES if NULL values can be stored in the column, NO if not.
+     *     'Key' => string, The column key if the column is indexed.
+     *     'Default' => mixed, The default value for the column.
+     *     'Extra' => string, Any additional information. The value is nonempty in these cases:
+     *         - auto_increment for columns that have the AUTO_INCREMENT attribute.
+     *         - on update CURRENT_TIMESTAMP for TIMESTAMP or DATETIME columns that have the ON UPDATE CURRENT_TIMESTAMP attribute.
+     *         - VIRTUAL GENERATED or STORED GENERATED for generated columns.
+     *         - DEFAULT_GENERATED for columns that have an expression default value.
      * ]
      */
-    public function getColumns($table, $fetch_parameters = \PDO::FETCH_OBJ, $debug = false)
+    public function getColumns(string $table, int $fetch_parameters = \PDO::FETCH_OBJ, bool $debug = false): mixed
     {
         switch ($this->pdo_driver) {
             case 'firebird':
                 $qry = 'SELECT
-                TRIM(R.RDB$FIELD_NAME) AS FIELD_NAME,
-                TRIM(R.RDB$DEFAULT_VALUE) AS DEFAULT_VALUE,
-                TRIM(R.RDB$NULL_FLAG) AS NULL_FLAG,
-                TRIM(DECODE(R.RDB$IDENTITY_TYPE, 0, \'ALWAYS\', 1, \'DEFAULT\', \'UNKNOWN\')) AS IDENTITY_TYPE,
-                TRIM(F.RDB$FIELD_LENGTH / RCS.RDB$BYTES_PER_CHARACTER) AS FIELD_LENGTH,
-                TRIM(F.RDB$FIELD_PRECISION) AS FIELD_PRECISION,
-                TRIM(F.RDB$FIELD_SCALE) AS FIELD_SCALE,
-                TRIM(CASE F.RDB$FIELD_TYPE
-                WHEN 7 THEN \'SMALLINT\'
-                WHEN 8 THEN \'INTEGER\'
-                WHEN 10 THEN \'FLOAT\'
-                WHEN 12 THEN \'DATE\'
-                WHEN 13 THEN \'TIME\'
-                WHEN 14 THEN \'CHAR\'
-                WHEN 16 THEN \'BIGINT\'
-                WHEN 27 THEN \'DOUBLE\'
-                WHEN 35 THEN \'TIMESTAMP\'
-                WHEN 37 THEN \'VARCHAR\'
-                WHEN 261 THEN \'BLOB\'
-                ELSE \'UNKNOWN\'
+                    TRIM(R.RDB$FIELD_NAME) AS FIELD_NAME,
+                    TRIM(R.RDB$DEFAULT_VALUE) AS DEFAULT_VALUE,
+                    TRIM(R.RDB$NULL_FLAG) AS NULL_FLAG,
+                    TRIM(DECODE(R.RDB$IDENTITY_TYPE, 0, \'ALWAYS\', 1, \'DEFAULT\', \'UNKNOWN\')) AS IDENTITY_TYPE,
+                    TRIM(F.RDB$FIELD_LENGTH / RCS.RDB$BYTES_PER_CHARACTER) AS FIELD_LENGTH,
+                    TRIM(F.RDB$FIELD_PRECISION) AS FIELD_PRECISION,
+                    TRIM(F.RDB$FIELD_SCALE) AS FIELD_SCALE,
+                    TRIM(CASE F.RDB$FIELD_TYPE
+                        WHEN 7 THEN \'SMALLINT\'
+                        WHEN 8 THEN \'INTEGER\'
+                        WHEN 10 THEN \'FLOAT\'
+                        WHEN 12 THEN \'DATE\'
+                        WHEN 13 THEN \'TIME\'
+                        WHEN 14 THEN \'CHAR\'
+                        WHEN 16 THEN \'BIGINT\'
+                        WHEN 27 THEN \'DOUBLE\'
+                        WHEN 35 THEN \'TIMESTAMP\'
+                        WHEN 37 THEN \'VARCHAR\'
+                        WHEN 261 THEN \'BLOB\'
+                        ELSE \'UNKNOWN\'
                     END) AS FIELD_TYPE,
-                TRIM(F.RDB$FIELD_SUB_TYPE) AS FIELD_SUB_TYPE
-            FROM
-            RDB$FIELDS F
-                LEFT JOIN RDB$RELATION_FIELDS R ON R.RDB$FIELD_SOURCE = F.RDB$FIELD_NAME
-                LEFT JOIN RDB$CHARACTER_SETS RCS ON RCS.RDB$CHARACTER_SET_ID = F.RDB$CHARACTER_SET_ID
-            WHERE RDB$RELATION_NAME = ' . $this->safe(trim(\strtoupper($table))) . ' ORDER BY R.RDB$FIELD_POSITION';
-                $this->query($qry, false, $debug);
+                    TRIM(F.RDB$FIELD_SUB_TYPE) AS FIELD_SUB_TYPE
+                FROM
+                    RDB$FIELDS F
+                    LEFT JOIN RDB$RELATION_FIELDS R ON R.RDB$FIELD_SOURCE = F.RDB$FIELD_NAME
+                    LEFT JOIN RDB$CHARACTER_SETS RCS ON RCS.RDB$CHARACTER_SET_ID = F.RDB$CHARACTER_SET_ID
+                WHERE RDB$RELATION_NAME = ' . $this->safe(trim(\strtoupper($table))) . ' ORDER BY R.RDB$FIELD_POSITION';
+                $this->query($qry, [], $debug);
                 break;
 
             case 'oci':
                 $qry = 'SELECT *
-                FROM USER_TAB_COLUMNS
-                WHERE TABLE_NAME = :tablename';
-                $values = array('tablename' => $table);
+                    FROM USER_TAB_COLUMNS
+                    WHERE TABLE_NAME = :tablename';
+                $values = ['tablename' => $table];
                 $this->query($qry, $values);
                 break;
 
             case 'pgsql':
                 $qry = 'SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = :table_name ORDER BY ordinal_position';
-                $values = array('table_name' => $table);
+                $values = ['table_name' => $table];
                 $this->query($qry, $values);
                 break;
 
-                // mysql
+            // mysql
             default:
                 $qry = 'SHOW COLUMNS FROM ' . trim($table);
-                $this->query($qry, false, $debug);
+                $this->query($qry, [], $debug);
                 break;
         }
 
         if (!empty($this->rowCount())) {
             // Returns the array
-
             return $this->fetchAll($fetch_parameters);
         }
 
@@ -1112,9 +1135,10 @@ class DB
      * Returns the columns names of the target table in a table
      *
      * @param string $table
+     * @param bool   $debug [OPTIONAL] Set to true to enable debug mode
      * @return mixed An array that contains the columns names or false if the table doesn't have any column.
      */
-    public function getColumnsNames($table, $debug = false)
+    public function getColumnsNames(string $table, bool $debug = false)
     {
         $columns = $this->getColumns($table, \PDO::FETCH_ASSOC, $debug);
 
@@ -1144,21 +1168,33 @@ class DB
     }
 
     /**
-     * Checks if inside a transaction
-     * @return bool
+     * Checks if inside a transaction.
+     *
+     * @return bool Returns true if inside a transaction, false otherwise.
      */
-    public function inTransaction()
+    public function inTransaction(): bool
     {
-        return $this->pdo->inTransaction();
+        if ($this->pdo instanceof \PDO) {
+            return $this->pdo->inTransaction();
+        }
+
+        return false;
     }
 
     /**
      * Begin transaction processing
      *
+     * @return bool Returns true if the transaction begins successfully, false otherwise.
+     * @throws \PDOException If there is an error with the database connection.
+     * @throws \Exception If there is a general error.
      */
-    public function transactionBegin()
+    public function transactionBegin(): bool
     {
         try {
+            if (!$this->pdo instanceof \PDO) {
+                throw new \PDOException('No database connection');
+            }
+
             if ($this->pdo_driver === 'firebird') {
                 $this->pdo->setAttribute(PDO::ATTR_AUTOCOMMIT, 0);
             }
@@ -1182,25 +1218,32 @@ class DB
     }
 
     /**
-     * Commit and end transaction processing
+     * Commit and end transaction processing.
      *
+     * @return bool Returns true if the transaction is committed successfully, false otherwise.
+     *
+     * @throws \PDOException If there is an error with the database connection.
+     * @throws \Exception If there is a general error.
      */
-    public function transactionCommit()
+    public function transactionCommit(): bool
     {
         try {
+            if (!$this->pdo instanceof \PDO) {
+                throw new \PDOException('No database connection');
+            }
             // Commit and end transaction processing
             $success = $this->pdo->commit();
             if ($this->pdo_driver === 'firebird') {
                 $this->pdo->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
             }
-        } catch (\PDOException $e) { // If there was an error...
-            // Return false to show there was an error
+        } catch (\PDOException $e) {
+            // If there was an error with the database connection
             $success = false;
 
             // Send the error to the error event handler
             $this->errorEvent('Database Error (' . __METHOD__ . '): ' . $e->getMessage(), $e->getCode());
-        } catch (\Exception $e) { // If there was an error...
-            // Return false to show there was an error
+        } catch (\Exception $e) {
+            // If there was a general error
             $success = false;
 
             // Send the error to the error event handler
@@ -1211,25 +1254,32 @@ class DB
     }
 
     /**
-     * Roll back transaction processing
+     * Roll back transaction processing.
      *
+     * @return bool Returns true if the transaction is rolled back successfully, false otherwise.
+     *
+     * @throws \PDOException If there is an error with the database connection.
+     * @throws \Exception If there is a general error.
      */
-    public function transactionRollback()
+    public function transactionRollback(): bool
     {
         try {
+            if (!$this->pdo instanceof \PDO) {
+                throw new \PDOException('No database connection');
+            }
             // Roll back transaction processing
             $success = $this->pdo->rollback();
             if ($this->pdo_driver === 'firebird') {
                 $this->pdo->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
             }
-        } catch (\PDOException $e) { // If there was an error...
-            // Return false to show there was an error
+        } catch (\PDOException $e) {
+            // If there was an error with the database connection
             $success = false;
 
             // Send the error to the error event handler
             $this->errorEvent('Database Error (' . __METHOD__ . '): ' . $e->getMessage(), $e->getCode());
-        } catch (\Exception $e) { // If there was an error...
-            // Return false to show there was an error
+        } catch (\Exception $e) {
+            // If there was a general error
             $success = false;
 
             // Send the error to the error event handler
@@ -1241,28 +1291,29 @@ class DB
 
     /**
      * Converts a Query() or Select() array of records into a simple array
-     * using only one column or an associative array using another column as a key
+     * using only one column or an associative array using another column as a key.
      *
-     * @param array $array The array returned from a PDO query using fetchAll
-     * @param string $value_field The name of the field that holds the value
-     * @param string $key_field [OPTIONAL] The name of the field that holds the key
-     * making the return value an associative array
-     * @return array Returns an array with only the specified data
+     * @param mixed $array The array returned from a PDO query using fetchAll.
+     * @param string $value_field The name of the field that holds the value.
+     * @param string|null $key_field The name of the field that holds the key, making the return value an associative array.
+     * @return array<mixed> Returns an array with only the specified data.
      */
-    public function convertQueryToSimpleArray($array, $value_field, $key_field = false)
+    public function convertQueryToSimpleArray(mixed $array, string $value_field, ?string $key_field = null): array
     {
         // Create an empty array
-        $return = array();
+        $return = [];
 
-        // Loop through the query results
-        foreach ($array as $element) {
-            // If we have a key
-            if ($key_field) {
-                // Add this key
-                $return[$element[$key_field]] = $element[$value_field];
-            } else { // No key field
-                // Append to the array
-                $return[] = $element[$value_field];
+        if (is_array($array)) {
+            // Loop through the query results
+            foreach ($array as $element) {
+                // If we have a key
+                if (!is_null($key_field)) {
+                    // Add this key
+                    $return[$element[$key_field]] = $element[$value_field];
+                } else { // No key field
+                    // Append to the array
+                    $return[] = $element[$value_field];
+                }
             }
         }
 
@@ -1271,24 +1322,22 @@ class DB
     }
 
     /**
-     * This function returns a SQL query as an HTML table
+     * This function returns records from a SQL query as an HTML table.
      *
-     * @param array $records The records set - can be an array or array of objects according to the fetch parameters.
-     * @param bool $show_count (Optional) true if you want to show the row count,
-     * false if you do not want to show the count
-     * @param string $table_attr (Optional) Comma separated attributes for the table. e.g: 'class=my-class, style=color:#222'
-     * @param string $th_attr (Optional) Comma separated attributes for the header row. e.g: 'class=my-class, style=font-weight:bold'
-     * @param string $td_attr (Optional) Comma separated attributes for the cells. e.g: 'class=my-class, style=font-weight:normal'
-     * @return string HTML containing a table with all records listed
+     * @param array<mixed> $records The records set - can be an array or array of objects according to the fetch parameters.
+     * @param bool $show_count (Optional) true if you want to show the row count, false if you do not want to show the count.
+     * @param string|null $table_attr (Optional) Comma separated attributes for the table. e.g: 'class=my-class, style=color:#222'.
+     * @param string|null $th_attr (Optional) Comma separated attributes for the header row. e.g: 'class=my-class, style=font-weight:bold'.
+     * @param string|null $td_attr (Optional) Comma separated attributes for the cells. e.g: 'class=my-class, style=font-weight:normal'.
+     * @return string HTML containing a table with all records listed.
      */
     public function getHTML(
-        $records,
-        $show_count = true,
-        $table_attr = null,
-        $th_attr = null,
-        $td_attr = null
-    ) {
-
+        array $records,
+        bool $show_count = true,
+        ?string $table_attr = null,
+        ?string $th_attr = null,
+        ?string $td_attr = null
+    ): string {
         // Set default style information
         if ($table_attr === null) {
             $tb = 'style="border-collapse:collapse;empty-cells:show"';
@@ -1306,43 +1355,38 @@ class DB
             $td = $this->getAttributes($td_attr);
         }
 
-        // If there was no error...
-        if (is_array($records)) {
-            // If records were returned...
-            if (!empty($records)) {
-                // Begin the table
-                $html = "";
-                if ($show_count) {
-                    $html = "<p>Total Count: " . count($records) . "</p>\n";
-                }
-                $html .= "<table $tb>\n";
+        // If there was no error && records were returned...
+        if (is_array($records) && !empty($records)) {
+            // Begin the table
+            $html = "";
+            if ($show_count) {
+                $html = "<p>Total Count: " . count($records) . "</p>\n";
+            }
+            $html .= "<table $tb>\n";
 
-                // Create the header row
+            // Create the header row
+            $html .= "\t<tr>\n";
+            foreach ($records[0] as $key => $value) {
+                $html .= "\t\t<th $th>" . htmlspecialchars($key) . "</th>\n";
+            }
+            $html .= "\t</tr>\n";
+
+            // Create the rows with data
+            foreach ($records as $row) {
                 $html .= "\t<tr>\n";
-                foreach ($records[0] as $key => $value) {
-                    $html .= "\t\t<th $th>" . htmlspecialchars($key) . "</th>\n";
+                foreach ($row as $value) {
+                    if (is_null($value)) {
+                        $value = '';
+                    }
+                    $html .= "\t\t<td $td>" . htmlspecialchars($value) . "</td>\n";
                 }
                 $html .= "\t</tr>\n";
-
-                // Create the rows with data
-                foreach ($records as $row) {
-                    $html .= "\t<tr>\n";
-                    foreach ($row as $value) {
-                        if (is_null($value)) {
-                            $value = '';
-                        }
-                        $html .= "\t\t<td $td>" . htmlspecialchars($value) . "</td>\n";
-                    }
-                    $html .= "\t</tr>\n";
-                }
-
-                // Close the table
-                $html .= "</table>";
-            } else { // No records were returned
-                $html = "No records were returned.";
             }
-        } else { // There was an error with the SQL
-            $html = false;
+
+            // Close the table
+            $html .= "</table>";
+        } else { // No records were returned
+            $html = "No records were returned.";
         }
 
         // Return the table HTML code
@@ -1356,20 +1400,31 @@ class DB
      * @param bool $include_zero Include 0 as NULL?
      * @param bool $include_false Include false as NULL?
      * @param bool $include_blank_string Include a blank string as NULL?
-     * @return unknown_type The value or NULL if empty
+     * @return mixed The value or NULL if empty
+     */
+    /**
+     * Converts empty values to NULL.
+     *
+     * @param mixed $value Any value.
+     * @param bool $include_zero Include 0 as NULL?
+     * @param bool $include_false Include false as NULL?
+     * @param bool $include_blank_string Include a blank string as NULL?
+     * @return mixed The value or NULL if empty.
      */
     public function emptyToNull(
-        $value,
-        $include_zero = true,
-        $include_false = true,
-        $include_blank_string = true
-    ) {
+        mixed $value,
+        bool $include_zero = true,
+        bool $include_false = true,
+        bool $include_blank_string = true
+    ): mixed {
         $return = $value;
         if (!$include_false && $value === false) {
             // Skip
-        } elseif (!$include_zero && ($value === 0 || trim($value) === '0')) {
+        } elseif (is_string($value) && !$include_zero && trim($value) === '0') {
             // Skip
-        } elseif (!$include_blank_string && trim($value) === '') {
+        } elseif (is_int($value) && !$include_zero && $value === 0) {
+            // Skip
+        } elseif (is_string($value) && !$include_blank_string && trim($value) === '') {
             // Skip
         } elseif (is_string($value)) {
             if (strlen(trim($value)) == 0) {
@@ -1383,19 +1438,32 @@ class DB
         return $return;
     }
 
-    public function error()
+    /**
+     * Get the error message.
+     *
+     * @return mixed The error message.
+     */
+    public function error(): mixed
     {
         return $this->error;
     }
 
-    public function getLastInsertId()
+    /**
+     * Get the last insert ID.
+     *
+     * @return mixed The last insert ID.
+     */
+    public function getLastInsertId(): mixed
     {
         if ($this->driver_supports_last_insert_id) {
             $return = $this->last_insert_id;
         } else {
             try {
+                if (!$this->pdo instanceof \PDO) {
+                    throw new \PDOException('No database connection');
+                }
                 $return = $this->pdo->lastInsertId();
-            } catch (\PDOException $e) { // if the driver doesn't support lastInsertId()
+            } catch (\PDOException $e) {
                 $return = false;
                 $err = 'Database Error (' . __METHOD__ . '):<br>'
                     . $e->getMessage() . '<br>Use $db->getMaximumValue($table, $field, $debug = false) instead.';
@@ -1408,9 +1476,14 @@ class DB
         return $return;
     }
 
-    public function getLastSql()
+    /**
+     * Determines if a valid connection to the database exists.
+     *
+     * @return mixed The last SQL query string or null if no query exists.
+     */
+    public function getLastSql(): mixed
     {
-        if (isset($this->query) && !is_null($this->query)) {
+        if (isset($this->query) && $this->query !== null) {
             return $this->query->queryString;
         }
         return null;
@@ -1426,7 +1499,7 @@ class DB
     public function getMaximumValue($table, $field, $debug = false)
     {
         $extras = array('order_by' => $field . ' DESC', 'limit' => 1);
-        $this->select($table, $field, false, $extras, $debug);
+        $this->select($table, $field, [], $extras, $debug);
         $row = $this->fetch();
 
         if ($row) {
@@ -1443,7 +1516,7 @@ class DB
      */
     public function isConnected()
     {
-        return is_object($this->pdo);
+        return $this->pdo instanceof \PDO;
     }
 
     /**
@@ -1452,7 +1525,7 @@ class DB
      * @param string $mode - 'html' or 'json'
      * if 'html' the function will return the HTML output.
      * if 'json' it'll return a JSON output of the HTML content
-     * @return string
+     * @return string|bool The debug content or false if json_encode fails
      */
     public function getDebugContent($mode = 'html')
     {
@@ -1463,7 +1536,12 @@ class DB
         return $this->debug_content;
     }
 
-    public function rowCount()
+    /**
+     * Get the number of rows affected by the last database operation.
+     *
+     * @return mixed The number of rows affected or false on failure.
+     */
+    public function rowCount(): mixed
     {
         return $this->row_count;
     }
@@ -1471,11 +1549,14 @@ class DB
     /**
      * Returns a quoted string that is safe to pass into an SQL statement
      *
-     * @param string $value A string value or DateTime object
+     * @param string|\DateTime $value A string value or DateTime object
      * @return string The newly encoded string with quotes
      */
     public function safe($value)
     {
+        if (!$this->pdo instanceof \PDO) {
+            throw new \PDOException('No database connection');
+        }
 
         // If it's a string...
         if (is_string($value)) {
@@ -1517,10 +1598,10 @@ class DB
      *
      * @param string $error The error description [$exception->getMessage()]
      * @param int $error_code [OPTIONAL] The error number [$exception->getCode()]
+     * @return void
      */
-    protected function errorEvent($error, $error_code = 0)
+    protected function errorEvent(string $error, int $error_code = 0): void
     {
-
         // Send this error to the PHP error log
         if (function_exists('error_log')) {
             if (empty($error_code)) {
@@ -1540,11 +1621,11 @@ class DB
 
     /**
      * get the limit value(s) and return a cross-driver compatible version.
-     * @param mixed $limit int or string with comma-separated values.
+     * @param int|string $limit int or string with comma-separated values.
      *              e.g: 10 | '10, 20'
-     * @return mixed the limit integer or the converted string
+    * @return int|string the limit integer or the converted string
      */
-    protected function getLimitSqlFromDriver($limit)
+    protected function getLimitSqlFromDriver($limit): mixed
     {
         if (is_numeric($limit) || (is_string($limit) && \strpos($limit, ',') === false)) {
             switch ($this->pdo_driver) {
@@ -1587,36 +1668,36 @@ class DB
         return $limit_sql;
     }
 
-    /**
+    /** array<string, array<string, bool|DateTime|int|string|null>> but returns array<string, array<string, int<min, -1>|int<1, max>|string>|string>.
      * Builds a SQL WHERE clause from an array
      *
-     * @param $where Array containing the fields and values or a string
-     * $where = array();
-     * $where['id >'] = 1234;
-     * $where[] = 'first_name IS NOT NULL';
-     * $where['some_value <>'] = 'text';
-     * @return array An associative array with both a 'sql' and 'placeholders' key
+     * @param array<int|string, int<min, -1>|int<1, max>|string>|string $where Array containing the fields and values or a string
+     *                    Example:
+     *                    $where = [];
+     *                    $where['id >'] = 1234;
+     *                    $where[] = 'first_name IS NOT NULL';
+     *                    $where['some_value <>'] = 'text';
+     * @return void
      */
-    protected function whereClause($where)
+    protected function whereClause($where): void
     {
-
         // Create an array to hold the place holder values (if any)
-        $placeholders = array();
+        $placeholders = [];
 
         // Create a variable to hold SQL
         $sql = '';
 
         // If an array was passed in...
-        if (is_array($where)) {
+        if (is_array($where) && !empty($where)) {
             // Create an array to hold the WHERE values
-            $output = array();
+            $output = [];
 
             // loop through the array
             foreach ($where as $key => $value) {
                 // If a key is specified for a PDO place holder field...
                 if (is_string($key)) {
                     // Extract the key
-                    $extracted_key = preg_replace(
+                    $extracted_key = (string) preg_replace(
                         '/^(\s*)([^\s=<>]*)(.*)/',
                         '${2}',
                         $key
@@ -1635,7 +1716,7 @@ class DB
                         $index++;
                         $indexed_key = $alphabet[$index] . '_' . $extracted_key;
                     }
-                    $extracted_key = $indexed_key;
+                    $extracted_key = (string) $indexed_key;
 
                     // If no <> = was specified...
                     if ($alphabet[$index] . '_' . trim(str_replace('.', '_', $key)) == $extracted_key) {
@@ -1655,20 +1736,13 @@ class DB
 
             // Concatenate the array values
             $sql = ' WHERE ' . implode(' AND ', $output);
-        } elseif ($where) {
+        } elseif (is_string($where) && !empty($where)) {
             $sql = ' WHERE ' . trim($where);
         }
 
-        // Set the place holders to false if none exist
-        if (empty($placeholders)) {
-            $placeholders = false;
-        }
-
-        // Return the sql and place holders
-        return array(
-            "sql" => $sql,
-            "placeholders" => $placeholders
-        );
+        // Set the sql and placeholders
+        $this->where_clause_sql = $sql;
+        $this->where_clause_placeholders = $placeholders;
     }
 
     /**
@@ -1676,21 +1750,24 @@ class DB
      *
      * @param string $source The source to show on the debug output
      * @param string $sql SQL
-     * @param array $placeholders [OPTIONAL] Placeholders array
-     * @param object $query [OPTIONAL] PDO query object
-     * @param int $count [OPTIONAL] The record count
+     * @param array<string, string|int|bool|\DateTime|null> $placeholders [OPTIONAL] Placeholders array
+     * @param \PDOStatement|null $query [OPTIONAL] PDO query object
+     * @param bool $records [OPTIONAL] The record count
+     * @param float|false $time [OPTIONAL] The number of seconds
+     * @param int|bool $count [OPTIONAL] The record count
      * @param string $error [OPTIONAL] Error text
+     * @return void
      */
     private function dumpDebug(
-        $source,
-        $sql,
-        $placeholders = false,
-        $query = false,
-        $records = false,
-        $time = false,
-        $count = false,
-        $error = false
-    ) {
+        string $source,
+        string $sql,
+        ?array $placeholders = [],
+        ?\PDOStatement $query = null,
+        bool $records = false,
+        mixed $time = false,
+        mixed $count = 0,
+        string $error = ''
+    ): void {
         $random_colors = array('coral', 'crimson', 'dodgerblue', 'darkcyan', 'darkgoldenrod', 'deeppink', 'forestgreen', 'goldenrod', 'mediumpurple', 'mediumseagreen');
         shuffle($random_colors);
 
@@ -1705,7 +1782,7 @@ class DB
         }
 
         // If there was an error specified
-        if ($error) {
+        if (!empty($error)) {
             // Show the error information
             $output .= "\n<br>\n--<strong>DEBUG " . $source . " ERROR</strong>--\n
                     <pre><code>";
@@ -1793,15 +1870,17 @@ class DB
 
             // split with commas
             $attr = preg_split('`,`', $attr);
-            foreach ($attr as $a) {
-                // add quotes
-                if (preg_match('`=`', $a)) {
-                    $a = preg_replace('`\s*=\s*`', '="', trim($a)) .  '" ';
-                } else {
-                    // no quote for single attributes
-                    $a = trim($a) . ' ';
+            if ($attr !== false) {
+                foreach ($attr as $a) {
+                    // add quotes
+                    if (preg_match('`=`', $a)) {
+                        $a = preg_replace('`\s*=\s*`', '="', trim($a)) .  '" ';
+                    } else {
+                        // no quote for single attributes
+                        $a = trim($a) . ' ';
+                    }
+                    $clean_attr .= $a;
                 }
-                $clean_attr .= $a;
             }
 
             // get back protected commas, equals and trim
@@ -1811,24 +1890,28 @@ class DB
         }
     }
 
-    private function interpolateQuery($query, $params)
+    /**
+     * Interpolates the query by replacing placeholders with their corresponding values.
+     *
+     * @param string $query The SQL query with placeholders.
+     * @param mixed[] $params An array of parameter values to be interpolated into the query.
+     * @return string The interpolated query.
+     */
+    private function interpolateQuery(string $query, array $params): string
     {
-        $keys = array();
-        $values = array();
+        $keys = [];
+        $values = [];
 
         if (!is_array($params)) {
             return $query;
         }
 
-        // sort $params by key kength desc.
-        uksort(
-            $params,
-            function ($a, $b) {
-                return strlen($b) - strlen($a);
-            }
-        );
+        // Sort $params by key length in descending order.
+        uksort($params, function (string $a, string $b): int {
+            return strlen($b) - strlen($a);
+        });
 
-        // build a regular expression for each parameter
+        // Build a regular expression for each parameter.
         foreach ($params as $key => $value) {
             if (is_string($key)) {
                 $keys[] = '/:' . $key . '/';
@@ -1848,13 +1931,13 @@ class DB
         }
         $query = preg_replace($keys, $values, $query);
 
-        return $query;
+        return (string) $query;
     }
 
     /**
      * test if the SQL query accepts transaction or if it's an auto-commited query
      * https://dev.mysql.com/doc/refman/5.7/en/implicit-commit.html
-     * @param mixed $sql
+     * @param string $sql
      * @return bool
      */
     private function isSqlAutoCommit($sql)
@@ -1869,16 +1952,20 @@ class DB
     /**
      * Returns the number of rows in the result set of the current query.
      *
-     * @param array $placeholders An array of placeholder values to be bound to the query.
-     * @param bool $debug Whether to output debug information.
+     * @param array<string, string|int|bool|\DateTime|null> $placeholders [OPTIONAL] An array of placeholder values to be bound to the query.
+     * @param bool $debug [OPTIONAL] Whether to output debug information.
      * @return int|bool The number of rows, or false on failure.
      */
-    private function numRows($placeholders = null, $debug = false)
+    private function numRows(array $placeholders = [], bool $debug = false): mixed
     {
         $return = false;
         $time   = false;
-        if (!is_null($this->query)) {
+        if ($this->query instanceof \PDOStatement) {
             try {
+                if (!$this->pdo instanceof \PDO) {
+                    throw new \PDOException('No database connection');
+                }
+
                 // default: will send the query and fetch all records to count them
                 $use_select_count = false;
                 $sql = $this->query->queryString;
@@ -1886,7 +1973,7 @@ class DB
                 // If the query string has no "limit" terms
                 // and can be parsed as a SELECT FROM query
                 // OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY
-                if (!\preg_match('/LIMIT[\s0-9]+|FIRST[\s0-9]+|SKIP[\s0-9]+|OFFSET[\s0-9]+|NEXT[\s0-9]+|HAVING SUM/i', $this->query->queryString) && \preg_match('/SELECT (.*) FROM (.*)/i', $this->query->queryString, $out)) {
+                if (!preg_match('/LIMIT[\s0-9]+|FIRST[\s0-9]+|SKIP[\s0-9]+|OFFSET[\s0-9]+|NEXT[\s0-9]+|HAVING SUM/i', $this->query->queryString) && preg_match('/SELECT (.*) FROM (.*)/i', $this->query->queryString, $out)) {
                     // will send a SELECT COUNT query
                     $use_select_count = true;
                     $sql = 'SELECT COUNT(' . $this->num_rows_query_string . ') AS "row_count" FROM ' . $out[2];
@@ -1939,7 +2026,10 @@ class DB
                     $time_end = microtime(true);
                     $time = $time_end - $time_start;
 
-                    $return = $row->row_count;
+                    // if $row is an object and has the row_count property
+                    if (is_object($row) && isset($row->row_count)) {
+                        $return = $row->row_count;
+                    }
                 } else {
                     $rows = $num_rows_query->fetchAll(\PDO::FETCH_OBJ);
 
@@ -1966,6 +2056,14 @@ class DB
                     );
                 }
             } catch (\PDOException $e) { // If there was an error...
+                if (!isset($sql)) {
+                    $sql = '';
+                }
+
+                if (!isset($num_rows_query)) {
+                    $num_rows_query = false;
+                }
+
                 // Get the error
                 $err = 'Database Error (' . __METHOD__ . '): '
                     . $e->getMessage() . ' ' . $sql;
@@ -1983,7 +2081,6 @@ class DB
                         $num_rows_query,
                         $return,
                         $time,
-                        false,
                         false,
                         $err
                     );
