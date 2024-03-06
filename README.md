@@ -1,7 +1,7 @@
 
 # PHP PDO Database class
 
-![Static Badge](https://img.shields.io/badge/php%207.3+-fafafa?logo=php) [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+![Static Badge](https://img.shields.io/badge/php%207.4+-fafafa?logo=php) [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 
 This DB class provides a set of simple, intuitive methods for executing queries and retrieving data. It handles pagination, error handling and debugging.
 
