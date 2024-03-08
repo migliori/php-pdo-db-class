@@ -57,7 +57,7 @@ Clone / download or install with Composer
 
 ## Usage/Examples
 
-1. Open `database/connect/db-connect.php` in your code editor and set the followings constants to connect to your database:
+1. Open `src/connect/db-connect.php` in your code editor and set the followings constants to connect to your database:
 
     ```php
     PDO_DRIVER // 'mysql', 'firebird', 'oci' or 'pgsql'
@@ -68,16 +68,13 @@ Clone / download or install with Composer
     DB_PORT[OPTIONAL]    // The default port is 3306
     ```
 
-2. Require `database/db-connect.php` and you can connect to both your localhost and production server using `$db = new DB();` without any argument.
+2. Require `src/connect/db-connect.php` and you can connect to both your localhost and production server using `$db = new DB();` without any argument.
 
     ```php
-    use database\DB;
+    use Migliori\Database\Db;
 
     // register the database connection settings
-    require_once 'database/db-connect.php';
-
-    // Include the database class
-    require_once 'database/DB.php';
+    require_once 'src/connect/db-connect.php';
 
     // Then connect to the database
     $db = new DB();
@@ -146,11 +143,11 @@ To see all the public methods and more examples of use of use visit [https://www
 2. Get your records and the pagination HTML code
 
     ```php
-    use database\Pagination;
-    use database\PdoSelectParams;
+    use Migliori\Database\Pagination;
+    use Migliori\Database\PdoSelectParams;
 
     // register the database connection settings
-    require_once 'database/db-connect.php';
+    require_once 'src/connect/db-connect.php';
 
     // register the PDO parameters for the query in a PdoSelectParams() object
     $values = array('id', 'first_name', 'last_name');
