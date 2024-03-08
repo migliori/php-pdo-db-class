@@ -94,7 +94,7 @@
     </ul>
 
     <article class="phpdocumentor-element -file">
-        <h2 class="phpdocumentor-content__title">Pagination.php</h2>
+        <h2 class="phpdocumentor-content__title">db-connect.php</h2>
 
         
 
@@ -104,23 +104,59 @@
 
 <h3 id="toc">
     Table of Contents
-    <a href="files/src-database-pagination.html#toc" class="headerlink"><i class="fas fa-link"></i></a>
+    <a href="files/src-database-connect-db-connect.html#toc" class="headerlink"><i class="fas fa-link"></i></a>
 
 </h3>
 
 
 
 
-    <h4 id="toc-classes">
-        Classes
-        <a href="files/src-database-pagination.html#toc-classes" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <dl class="phpdocumentor-table-of-contents">
-                    <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Migliori-Database-Pagination.html"><abbr title="\Migliori\Database\Pagination">Pagination</abbr></a></dt><dd>Pagination class</dd>    </dl>
 
 
 
+<h4 id="toc-constants">
+    Constants
+    <a href="files/src-database-connect-db-connect.html#toc-constants" class="headerlink"><i class="fas fa-link"></i></a>
+
+</h4>
+<dl class="phpdocumentor-table-of-contents">
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a href="namespaces/default.html#constant_DB_HOST">DB_HOST</a>
+    <span>
+        &nbsp;= &#039;localhost&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a href="namespaces/default.html#constant_DB_NAME">DB_NAME</a>
+    <span>
+        &nbsp;= &#039;mydatabase&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a href="namespaces/default.html#constant_DB_PASS">DB_PASS</a>
+    <span>
+        &nbsp;= &#039;mypassword&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a href="namespaces/default.html#constant_DB_PORT">DB_PORT</a>
+    <span>
+        &nbsp;= &#039;&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a href="namespaces/default.html#constant_DB_USER">DB_USER</a>
+    <span>
+        &nbsp;= &#039;me&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a href="namespaces/default.html#constant_PDO_DRIVER">PDO_DRIVER</a>
+    <span>
+        &nbsp;= &#039;mysql&#039;                            </span>
+</dt>
+
+    </dl>
 
 
 
@@ -129,13 +165,188 @@
 
 
         
+    <section class="phpdocumentor-constants">
+        <h3 class="phpdocumentor-elements__header" id="constants">
+            Constants
+            <a href="files/src-database-connect-db-connect.html#constants" class="headerlink"><i class="fas fa-link"></i></a>
+
+        </h3>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_DB_HOST">
+        DB_HOST
+        <a href="namespaces/default.html#constant_DB_HOST" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/database/connect/db-connect.php"><a href="files/src-database-connect-db-connect.html"><abbr title="src/database/connect/db-connect.php">db-connect.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">36</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">DB_HOST</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;localhost&#039;</span>
+</code>
+
+
+    
+    
+    
+
+</article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_DB_NAME">
+        DB_NAME
+        <a href="namespaces/default.html#constant_DB_NAME" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/database/connect/db-connect.php"><a href="files/src-database-connect-db-connect.html"><abbr title="src/database/connect/db-connect.php">db-connect.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">40</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">DB_NAME</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;mydatabase&#039;</span>
+</code>
+
+
+    
+    
+    
+
+</article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_DB_PASS">
+        DB_PASS
+        <a href="namespaces/default.html#constant_DB_PASS" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/database/connect/db-connect.php"><a href="files/src-database-connect-db-connect.html"><abbr title="src/database/connect/db-connect.php">db-connect.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">39</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">DB_PASS</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;mypassword&#039;</span>
+</code>
+
+
+    
+    
+    
+
+</article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_DB_PORT">
+        DB_PORT
+        <a href="namespaces/default.html#constant_DB_PORT" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/database/connect/db-connect.php"><a href="files/src-database-connect-db-connect.html"><abbr title="src/database/connect/db-connect.php">db-connect.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">37</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">DB_PORT</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;&#039;</span>
+</code>
+
+
+    
+    
+    
+
+</article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_DB_USER">
+        DB_USER
+        <a href="namespaces/default.html#constant_DB_USER" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/database/connect/db-connect.php"><a href="files/src-database-connect-db-connect.html"><abbr title="src/database/connect/db-connect.php">db-connect.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">38</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">DB_USER</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;me&#039;</span>
+</code>
+
+
+    
+    
+    
+
+</article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_PDO_DRIVER">
+        PDO_DRIVER
+        <a href="namespaces/default.html#constant_PDO_DRIVER" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/database/connect/db-connect.php"><a href="files/src-database-connect-db-connect.html"><abbr title="src/database/connect/db-connect.php">db-connect.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">25</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">PDO_DRIVER</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;mysql&#039;</span>
+</code>
+
+
+    
+    
+    
+
+</article>
+            </section>
 
         
         <div class="phpdocumentor-modal" id="source-view">
     <div class="phpdocumentor-modal-bg" data-exit-button></div>
     <div class="phpdocumentor-modal-container">
         <div class="phpdocumentor-modal-content">
-            <pre style="max-height: 500px; overflow-y: scroll" data-src="files/src/database/Pagination.php.txt" class="language-php line-numbers linkable-line-numbers"></pre>
+            <pre style="max-height: 500px; overflow-y: scroll" data-src="files/src/database/connect/db-connect.php.txt" class="language-php line-numbers linkable-line-numbers"></pre>
         </div>
         <button data-exit-button class="phpdocumentor-modal__close">&times;</button>
     </div>
@@ -234,10 +445,21 @@
             <li class="phpdocumentor-on-this-page-section__title">Table Of Contents</li>
             <li>
                 <ul class="phpdocumentor-list -clean">
-                                                                                                        <li><a href="files/src-database-pagination.html#toc-classes">Classes</a></li>
-                                                                                                                    </ul>
+                                                                                                                                                                    <li><a href="files/src-database-connect-db-connect.html#toc-constants">Constants</a></li>
+                                                        </ul>
             </li>
 
+                            <li class="phpdocumentor-on-this-page-section__title">Constants</li>
+                <li>
+                    <ul class="phpdocumentor-list -clean">
+                                                    <li><a href="namespaces/default.html#constant_DB_HOST">DB_HOST</a></li>
+                                                    <li><a href="namespaces/default.html#constant_DB_NAME">DB_NAME</a></li>
+                                                    <li><a href="namespaces/default.html#constant_DB_PASS">DB_PASS</a></li>
+                                                    <li><a href="namespaces/default.html#constant_DB_PORT">DB_PORT</a></li>
+                                                    <li><a href="namespaces/default.html#constant_DB_USER">DB_USER</a></li>
+                                                    <li><a href="namespaces/default.html#constant_PDO_DRIVER">PDO_DRIVER</a></li>
+                                            </ul>
+                </li>
             
                     </ul>
     </section>
@@ -256,7 +478,7 @@
     </section>
 </section>
         </div>
-        <a href="files/src-database-pagination.html#top" class="phpdocumentor-back-to-top"><i class="fas fa-chevron-circle-up"></i></a>
+        <a href="files/src-database-connect-db-connect.html#top" class="phpdocumentor-back-to-top"><i class="fas fa-chevron-circle-up"></i></a>
 
     </main>
 

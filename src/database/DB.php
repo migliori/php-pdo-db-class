@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace database;
+namespace Migliori\Database;
 
 use PDO;
 
@@ -31,13 +31,13 @@ use PDO;
  *
  * @api
  * @author Gilles Migliori
- * @version 2.2
+ * @version 2.1
  * @license GNU General Public License v3.0
  * @link https://github.com/gilles-migliori/php-pdo-db-class
  * @link https://packagist.org/packages/gilles-migliori/php-pdo-db-class
  * @link https://www.phpformbuilder.pro/documentation/db-help.php
  */
-class DB
+class Db
 {
     public bool $show_errors;
     private string $debug_content = '';

@@ -5,7 +5,39 @@
 
 This DB class provides a set of simple, intuitive methods for executing queries and retrieving data. It handles pagination, error handling and debugging.
 
-The code is dulley documented with PHPDOC. It provides types & type hinting and follows the highest coding standards (PHPSTAN Level 9).
+The code is fully documented with PHPDOC. It provides types & type hinting and follows the highest coding standards (PHPSTAN Level 9).
+
+## Demo
+
+[PDO Database class - queries and pagination demos](https://www.phpformbuilder.pro/phpformbuilder/vendor/migliori/php-pdo-database-class/examples/select.php)
+
+## Features
+
+- Connection to any MySQL, Firebird, OCI (Oracle) or Pgsql (PostgreSQL) database
+- SQL queries Sending
+- Generation and sending of prepared PDO queries
+- Functions available for all types of queries:
+  - Select
+  - SelectCount
+  - SelectRow
+  - SelectValue
+  - Query
+  - QueryRow
+  - QueryValue
+  - Execute
+  - Insert
+  - Update
+  - Delete
+  - GetColums
+  - GetColumnsNames
+  - GetTables
+  - TransactionBegin
+  - TransactionCommit
+  - TransactionRollback
+- Pagination with configuration and options
+- Register your connection settings in a single safe place
+- DEBUG mode - display of SQL queries sent to the server and detailed information
+- Error event handling and PHP error logging with try/catch
 
 ## Requirements
 
@@ -13,19 +45,19 @@ PHP ^7.4, PHP 8.x
 
 ## Documentation
 
-[PHP PDO Database class - Detailed documentation, functions reference & code samples](https://www.phpformbuilder.pro/documentation/php-pdo-database-class.php)
+[PHP PDO Database class - Full detailed documentation, functions reference & code samples](https://www.phpformbuilder.pro/documentation/php-pdo-database-class.php)
 
 ## Installation
 
 Clone / download or install with Composer
 
 ```bash
-  composer require vendor/migliori/php-pdo-database-class
+  composer require migliori/php-pdo-database-class
 ```
 
 ## Usage/Examples
 
-1. Open `database/db-connect.php` in your code editor and set the followings constants to connect to your database:
+1. Open `database/connect/db-connect.php` in your code editor and set the followings constants to connect to your database:
 
     ```php
     PDO_DRIVER // 'mysql', 'firebird', 'oci' or 'pgsql'
@@ -91,12 +123,59 @@ Clone / download or install with Composer
     // (this function should not be used if a huge number of rows have been selected, otherwise it will consume a lot of memory)
     $rows = $db->fetchAll();
 
-    foreach($rows as $row) {
+    foreach ($rows as $row) {
         echo $row->first_name . ' ' . $row->last_name . '<br>';
     }
     ```
 
 To see all the public methods and more examples of use of use visit [https://www.phpformbuilder.pro/documentation/php-pdo-database-class.php](https://www.phpformbuilder.pro/documentation/php-pdo-database-class.php)
+
+## Example with Pagination
+
+1. Open `database/db-connect.php` in your code editor and set the followings constants to connect to your database:
+
+    ```php
+    PDO_DRIVER // 'mysql', 'firebird', 'oci' or 'pgsql'
+    DB_HOST    // For instance 'localhost'
+    DB_NAME    // Your database name
+    DB_USER    // Your database username
+    DB_PASS    // Your database password
+    DB_PORT[OPTIONAL]    // The default port is 3306
+    ```
+
+2. Get your records and the pagination HTML code
+
+    ```php
+    use database\Pagination;
+    use database\PdoSelectParams;
+
+    // register the database connection settings
+    require_once 'database/db-connect.php';
+
+    // register the PDO parameters for the query in a PdoSelectParams() object
+    $values = array('id', 'first_name', 'last_name');
+    $where = array('country' => 'Indonesia');
+
+    $pdo_select_params = new PdoSelectParams('customers', $values, $where);
+
+    // create the Pagination object
+    $db = new Pagination($pdo_select_params);
+
+    // get the records and the pagination HTML code
+    $pagination_html = $db->pagine();
+
+    // count the records and display them
+    $records_count = $db->rowCount();
+
+    if (!empty($records_count)) {
+        while ($row = $db->fetch()) {
+            echo $row->first_name . ' ' . $row->last_name . ' : ' . $row->country . '<br>';
+        }
+    }
+
+    echo $pagination_html;
+
+    ```
 
 ## Running Tests
 

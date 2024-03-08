@@ -31,364 +31,454 @@ Search.appendIndex(
             "summary": "",
             "url": "namespaces/default.html#constant_DB_NAME"
         },                {
-            "fqsen": "\\database\\DB",
-            "name": "DB",
+            "fqsen": "\\Migliori\\Database\\Db",
+            "name": "Db",
             "summary": "DB\u0020class\u0020\u002D\u0020PDO\u0020Database\u0020abstraction\u0020layer\u0020class",
-            "url": "classes/database-DB.html"
+            "url": "classes/Migliori-Database-Db.html"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003A__construct\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
-            "summary": "Creates\u0020the\u0020DB\u0020object\u0020and\u0020\u0026\u0020connects\u0020to\u0020a\u0020MySQL\u0020PDO\u0020database.",
-            "url": "classes/database-DB.html#method___construct"
+            "summary": "Constructor",
+            "url": "classes/Migliori-Database-Db.html#method___construct"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003Aexecute\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003Aexecute\u0028\u0029",
             "name": "execute",
             "summary": "Executes\u0020a\u0020SQL\u0020statement\u0020using\u0020PDO",
-            "url": "classes/database-DB.html#method_execute"
+            "url": "classes/Migliori-Database-Db.html#method_execute"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003A\u0024query",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A\u0024query",
             "name": "query",
             "summary": "",
-            "url": "classes/database-DB.html#property_query"
+            "url": "classes/Migliori-Database-Db.html#property_query"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AqueryRow\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AqueryRow\u0028\u0029",
             "name": "queryRow",
             "summary": "Executes\u0020a\u0020SQL\u0020query\u0020using\u0020PDO\u0020and\u0020returns\u0020one\u0020row",
-            "url": "classes/database-DB.html#method_queryRow"
+            "url": "classes/Migliori-Database-Db.html#method_queryRow"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AqueryValue\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AqueryValue\u0028\u0029",
             "name": "queryValue",
             "summary": "Executes\u0020a\u0020SQL\u0020query\u0020using\u0020PDO\u0020and\u0020returns\u0020a\u0020single\u0020value\u0020only",
-            "url": "classes/database-DB.html#method_queryValue"
+            "url": "classes/Migliori-Database-Db.html#method_queryValue"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003Aselect\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003Aselect\u0028\u0029",
             "name": "select",
             "summary": "Selects\u0020records\u0020using\u0020PDO",
-            "url": "classes/database-DB.html#method_select"
+            "url": "classes/Migliori-Database-Db.html#method_select"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AselectCount\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AselectCount\u0028\u0029",
             "name": "selectCount",
             "summary": "Select\u0020COUNT\u0020records\u0020using\u0020PDO",
-            "url": "classes/database-DB.html#method_selectCount"
+            "url": "classes/Migliori-Database-Db.html#method_selectCount"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AselectRow\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AselectRow\u0028\u0029",
             "name": "selectRow",
             "summary": "Selects\u0020a\u0020single\u0020record\u0020using\u0020PDO",
-            "url": "classes/database-DB.html#method_selectRow"
+            "url": "classes/Migliori-Database-Db.html#method_selectRow"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AselectValue\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AselectValue\u0028\u0029",
             "name": "selectValue",
-            "summary": "Selects\u0020a\u0020single\u0020record\u0020using\u0020PDO",
-            "url": "classes/database-DB.html#method_selectValue"
+            "summary": "Selects\u0020a\u0020single\u0020value\u0020using\u0020PDO",
+            "url": "classes/Migliori-Database-Db.html#method_selectValue"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003Ainsert\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003Ainsert\u0028\u0029",
             "name": "insert",
             "summary": "Inserts\u0020a\u0020new\u0020record\u0020into\u0020a\u0020table\u0020using\u0020PDO",
-            "url": "classes/database-DB.html#method_insert"
+            "url": "classes/Migliori-Database-Db.html#method_insert"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003Aupdate\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003Aupdate\u0028\u0029",
             "name": "update",
             "summary": "Updates\u0020an\u0020existing\u0020record\u0020into\u0020a\u0020table\u0020using\u0020PDO",
-            "url": "classes/database-DB.html#method_update"
+            "url": "classes/Migliori-Database-Db.html#method_update"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003Adelete\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003Adelete\u0028\u0029",
             "name": "delete",
             "summary": "Deletes\u0020a\u0020record\u0020from\u0020a\u0020table\u0020using\u0020PDO",
-            "url": "classes/database-DB.html#method_delete"
+            "url": "classes/Migliori-Database-Db.html#method_delete"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003Afetch\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003Afetch\u0028\u0029",
             "name": "fetch",
             "summary": "Fetches\u0020the\u0020next\u0020row\u0020from\u0020a\u0020result\u0020set\u0020and\u0020returns\u0020it\u0020according\u0020to\u0020the\u0020\u0024fetch_parameters\u0020format",
-            "url": "classes/database-DB.html#method_fetch"
+            "url": "classes/Migliori-Database-Db.html#method_fetch"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AfetchAll\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AfetchAll\u0028\u0029",
             "name": "fetchAll",
             "summary": "Fetches\u0020all\u0020rows\u0020from\u0020a\u0020result\u0020set\u0020and\u0020return\u0020them\u0020according\u0020to\u0020the\u0020\u0024fetch_parameters\u0020format",
-            "url": "classes/database-DB.html#method_fetchAll"
+            "url": "classes/Migliori-Database-Db.html#method_fetchAll"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AgetPdo\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AgetPdo\u0028\u0029",
             "name": "getPdo",
             "summary": "Returns\u0020the\u0020PDO\u0020object\u0020for\u0020external\u0020use",
-            "url": "classes/database-DB.html#method_getPdo"
+            "url": "classes/Migliori-Database-Db.html#method_getPdo"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AgetPdoDriver\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AgetPdoDriver\u0028\u0029",
             "name": "getPdoDriver",
             "summary": "Get\u0020the\u0020active\u0020PDO\u0020driver",
-            "url": "classes/database-DB.html#method_getPdoDriver"
+            "url": "classes/Migliori-Database-Db.html#method_getPdoDriver"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AgetTables\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AgetTables\u0028\u0029",
             "name": "getTables",
             "summary": "Selects\u0020all\u0020the\u0020tables\u0020into\u0020the\u0020database",
-            "url": "classes/database-DB.html#method_getTables"
+            "url": "classes/Migliori-Database-Db.html#method_getTables"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AgetColumns\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AgetColumns\u0028\u0029",
             "name": "getColumns",
             "summary": "Get\u0020the\u0020information\u0020about\u0020the\u0020columns\u0020in\u0020a\u0020given\u0020table",
-            "url": "classes/database-DB.html#method_getColumns"
+            "url": "classes/Migliori-Database-Db.html#method_getColumns"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AgetColumnsNames\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AgetColumnsNames\u0028\u0029",
             "name": "getColumnsNames",
             "summary": "Returns\u0020the\u0020columns\u0020names\u0020of\u0020the\u0020target\u0020table\u0020in\u0020a\u0020table",
-            "url": "classes/database-DB.html#method_getColumnsNames"
+            "url": "classes/Migliori-Database-Db.html#method_getColumnsNames"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AinTransaction\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AinTransaction\u0028\u0029",
             "name": "inTransaction",
-            "summary": "Checks\u0020if\u0020inside\u0020a\u0020transaction",
-            "url": "classes/database-DB.html#method_inTransaction"
+            "summary": "Checks\u0020if\u0020inside\u0020a\u0020transaction.",
+            "url": "classes/Migliori-Database-Db.html#method_inTransaction"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AtransactionBegin\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AtransactionBegin\u0028\u0029",
             "name": "transactionBegin",
             "summary": "Begin\u0020transaction\u0020processing",
-            "url": "classes/database-DB.html#method_transactionBegin"
+            "url": "classes/Migliori-Database-Db.html#method_transactionBegin"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AtransactionCommit\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AtransactionCommit\u0028\u0029",
             "name": "transactionCommit",
-            "summary": "Commit\u0020and\u0020end\u0020transaction\u0020processing",
-            "url": "classes/database-DB.html#method_transactionCommit"
+            "summary": "Commit\u0020and\u0020end\u0020transaction\u0020processing.",
+            "url": "classes/Migliori-Database-Db.html#method_transactionCommit"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AtransactionRollback\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AtransactionRollback\u0028\u0029",
             "name": "transactionRollback",
-            "summary": "Roll\u0020back\u0020transaction\u0020processing",
-            "url": "classes/database-DB.html#method_transactionRollback"
+            "summary": "Roll\u0020back\u0020transaction\u0020processing.",
+            "url": "classes/Migliori-Database-Db.html#method_transactionRollback"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AconvertQueryToSimpleArray\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AconvertQueryToSimpleArray\u0028\u0029",
             "name": "convertQueryToSimpleArray",
-            "summary": "Converts\u0020a\u0020Query\u0028\u0029\u0020or\u0020Select\u0028\u0029\u0020array\u0020of\u0020records\u0020into\u0020a\u0020simple\u0020array\nusing\u0020only\u0020one\u0020column\u0020or\u0020an\u0020associative\u0020array\u0020using\u0020another\u0020column\u0020as\u0020a\u0020key",
-            "url": "classes/database-DB.html#method_convertQueryToSimpleArray"
+            "summary": "Converts\u0020a\u0020Query\u0028\u0029\u0020or\u0020Select\u0028\u0029\u0020array\u0020of\u0020records\u0020into\u0020a\u0020simple\u0020array\nusing\u0020only\u0020one\u0020column\u0020or\u0020an\u0020associative\u0020array\u0020using\u0020another\u0020column\u0020as\u0020a\u0020key.",
+            "url": "classes/Migliori-Database-Db.html#method_convertQueryToSimpleArray"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AgetHTML\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AgetHTML\u0028\u0029",
             "name": "getHTML",
-            "summary": "This\u0020function\u0020returns\u0020a\u0020SQL\u0020query\u0020as\u0020an\u0020HTML\u0020table",
-            "url": "classes/database-DB.html#method_getHTML"
+            "summary": "This\u0020function\u0020returns\u0020records\u0020from\u0020a\u0020SQL\u0020query\u0020as\u0020an\u0020HTML\u0020table.",
+            "url": "classes/Migliori-Database-Db.html#method_getHTML"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AemptyToNull\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AemptyToNull\u0028\u0029",
             "name": "emptyToNull",
-            "summary": "Converts\u0020empty\u0020values\u0020to\u0020NULL",
-            "url": "classes/database-DB.html#method_emptyToNull"
+            "summary": "Converts\u0020empty\u0020values\u0020to\u0020NULL.",
+            "url": "classes/Migliori-Database-Db.html#method_emptyToNull"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003A\u0024error",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A\u0024error",
             "name": "error",
             "summary": "",
-            "url": "classes/database-DB.html#property_error"
+            "url": "classes/Migliori-Database-Db.html#property_error"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AgetLastInsertId\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AgetLastInsertId\u0028\u0029",
             "name": "getLastInsertId",
-            "summary": "",
-            "url": "classes/database-DB.html#method_getLastInsertId"
+            "summary": "Get\u0020the\u0020last\u0020insert\u0020ID.",
+            "url": "classes/Migliori-Database-Db.html#method_getLastInsertId"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AgetLastSql\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AgetLastSql\u0028\u0029",
             "name": "getLastSql",
-            "summary": "",
-            "url": "classes/database-DB.html#method_getLastSql"
+            "summary": "Determines\u0020if\u0020a\u0020valid\u0020connection\u0020to\u0020the\u0020database\u0020exists.",
+            "url": "classes/Migliori-Database-Db.html#method_getLastSql"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AgetMaximumValue\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AgetMaximumValue\u0028\u0029",
             "name": "getMaximumValue",
             "summary": "Get\u0020the\u0020last\u0020value\u0020from\u0020a\u0020specific\u0020table\u0020field.",
-            "url": "classes/database-DB.html#method_getMaximumValue"
+            "url": "classes/Migliori-Database-Db.html#method_getMaximumValue"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AisConnected\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AisConnected\u0028\u0029",
             "name": "isConnected",
             "summary": "Determines\u0020if\u0020a\u0020valid\u0020connection\u0020to\u0020the\u0020database\u0020exists",
-            "url": "classes/database-DB.html#method_isConnected"
+            "url": "classes/Migliori-Database-Db.html#method_isConnected"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AgetDebugContent\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AgetDebugContent\u0028\u0029",
             "name": "getDebugContent",
             "summary": "Gets\u0020the\u0020content\u0020registered\u0020by\u0020the\u0020dumpDebug\u0028\u0029\u0020function",
-            "url": "classes/database-DB.html#method_getDebugContent"
+            "url": "classes/Migliori-Database-Db.html#method_getDebugContent"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003ArowCount\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003ArowCount\u0028\u0029",
             "name": "rowCount",
-            "summary": "",
-            "url": "classes/database-DB.html#method_rowCount"
+            "summary": "Get\u0020the\u0020number\u0020of\u0020rows\u0020affected\u0020by\u0020the\u0020last\u0020database\u0020operation.",
+            "url": "classes/Migliori-Database-Db.html#method_rowCount"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003Asafe\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003Asafe\u0028\u0029",
             "name": "safe",
             "summary": "Returns\u0020a\u0020quoted\u0020string\u0020that\u0020is\u0020safe\u0020to\u0020pass\u0020into\u0020an\u0020SQL\u0020statement",
-            "url": "classes/database-DB.html#method_safe"
+            "url": "classes/Migliori-Database-Db.html#method_safe"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AsetDebugMode\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AsetDebugMode\u0028\u0029",
             "name": "setDebugMode",
             "summary": "",
-            "url": "classes/database-DB.html#method_setDebugMode"
+            "url": "classes/Migliori-Database-Db.html#method_setDebugMode"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AerrorEvent\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AerrorEvent\u0028\u0029",
             "name": "errorEvent",
             "summary": "This\u0020is\u0020an\u0020event\u0020function\u0020that\u0020is\u0020called\u0020every\u0020time\u0020there\u0020is\u0020an\u0020error.",
-            "url": "classes/database-DB.html#method_errorEvent"
+            "url": "classes/Migliori-Database-Db.html#method_errorEvent"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AgetLimitSqlFromDriver\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AgetLimitSqlFromDriver\u0028\u0029",
             "name": "getLimitSqlFromDriver",
             "summary": "get\u0020the\u0020limit\u0020value\u0028s\u0029\u0020and\u0020return\u0020a\u0020cross\u002Ddriver\u0020compatible\u0020version.",
-            "url": "classes/database-DB.html#method_getLimitSqlFromDriver"
+            "url": "classes/Migliori-Database-Db.html#method_getLimitSqlFromDriver"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AwhereClause\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AwhereClause\u0028\u0029",
             "name": "whereClause",
-            "summary": "Builds\u0020a\u0020SQL\u0020WHERE\u0020clause\u0020from\u0020an\u0020array",
-            "url": "classes/database-DB.html#method_whereClause"
+            "summary": "array\u003Cstring,\u0020array\u003Cstring,\u0020bool\u007CDateTime\u007Cint\u007Cstring\u007Cnull\u003E\u003E\u0020but\u0020returns\u0020array\u003Cstring,\u0020array\u003Cstring,\u0020int\u003Cmin,\u0020\u002D1\u003E\u007Cint\u003C1,\u0020max\u003E\u007Cstring\u003E\u007Cstring\u003E.",
+            "url": "classes/Migliori-Database-Db.html#method_whereClause"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AdumpDebug\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AdumpDebug\u0028\u0029",
             "name": "dumpDebug",
             "summary": "Dump\u0020debug\u0020information\u0020to\u0020the\u0020screen",
-            "url": "classes/database-DB.html#method_dumpDebug"
+            "url": "classes/Migliori-Database-Db.html#method_dumpDebug"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AgetAttributes\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AgetAttributes\u0028\u0029",
             "name": "getAttributes",
             "summary": "Returns\u0020linearised\u0020attributes.",
-            "url": "classes/database-DB.html#method_getAttributes"
+            "url": "classes/Migliori-Database-Db.html#method_getAttributes"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AinterpolateQuery\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AinterpolateQuery\u0028\u0029",
             "name": "interpolateQuery",
-            "summary": "",
-            "url": "classes/database-DB.html#method_interpolateQuery"
+            "summary": "Interpolates\u0020the\u0020query\u0020by\u0020replacing\u0020placeholders\u0020with\u0020their\u0020corresponding\u0020values.",
+            "url": "classes/Migliori-Database-Db.html#method_interpolateQuery"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AisSqlAutoCommit\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AisSqlAutoCommit\u0028\u0029",
             "name": "isSqlAutoCommit",
             "summary": "test\u0020if\u0020the\u0020SQL\u0020query\u0020accepts\u0020transaction\u0020or\u0020if\u0020it\u0027s\u0020an\u0020auto\u002Dcommited\u0020query\nhttps\u003A\/\/dev.mysql.com\/doc\/refman\/5.7\/en\/implicit\u002Dcommit.html",
-            "url": "classes/database-DB.html#method_isSqlAutoCommit"
+            "url": "classes/Migliori-Database-Db.html#method_isSqlAutoCommit"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003AnumRows\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003AnumRows\u0028\u0029",
             "name": "numRows",
             "summary": "Returns\u0020the\u0020number\u0020of\u0020rows\u0020in\u0020the\u0020result\u0020set\u0020of\u0020the\u0020current\u0020query.",
-            "url": "classes/database-DB.html#method_numRows"
+            "url": "classes/Migliori-Database-Db.html#method_numRows"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003A\u0024show_errors",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A\u0024show_errors",
             "name": "show_errors",
             "summary": "",
-            "url": "classes/database-DB.html#property_show_errors"
+            "url": "classes/Migliori-Database-Db.html#property_show_errors"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003A\u0024debug_content",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A\u0024debug_content",
             "name": "debug_content",
             "summary": "",
-            "url": "classes/database-DB.html#property_debug_content"
+            "url": "classes/Migliori-Database-Db.html#property_debug_content"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003A\u0024debug_mode",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A\u0024debug_mode",
             "name": "debug_mode",
             "summary": "if\u0020\u0024debug_mode\u0020\u003D\u003D\u003D\u0020\u0027register\u0027\u0020the\u0020debug\u0020content\u0020is\u0020available\u0020with\u0020\u0024this\u002D\u003EgetDebugContent\u0028\u0029\u003B",
-            "url": "classes/database-DB.html#property_debug_mode"
+            "url": "classes/Migliori-Database-Db.html#property_debug_mode"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003A\u0024driver_supports_last_insert_id",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A\u0024driver_supports_last_insert_id",
             "name": "driver_supports_last_insert_id",
             "summary": "",
-            "url": "classes/database-DB.html#property_driver_supports_last_insert_id"
+            "url": "classes/Migliori-Database-Db.html#property_driver_supports_last_insert_id"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003A\u0024last_insert_id",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A\u0024last_insert_id",
             "name": "last_insert_id",
             "summary": "",
-            "url": "classes/database-DB.html#property_last_insert_id"
+            "url": "classes/Migliori-Database-Db.html#property_last_insert_id"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003A\u0024num_rows_query_string",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A\u0024num_rows_query_string",
             "name": "num_rows_query_string",
             "summary": "",
-            "url": "classes/database-DB.html#property_num_rows_query_string"
+            "url": "classes/Migliori-Database-Db.html#property_num_rows_query_string"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003A\u0024pdo",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A\u0024pdo",
             "name": "pdo",
             "summary": "",
-            "url": "classes/database-DB.html#property_pdo"
+            "url": "classes/Migliori-Database-Db.html#property_pdo"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003A\u0024pdo_driver",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A\u0024pdo_driver",
             "name": "pdo_driver",
             "summary": "",
-            "url": "classes/database-DB.html#property_pdo_driver"
+            "url": "classes/Migliori-Database-Db.html#property_pdo_driver"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003A\u0024row_count",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A\u0024row_count",
             "name": "row_count",
             "summary": "",
-            "url": "classes/database-DB.html#property_row_count"
+            "url": "classes/Migliori-Database-Db.html#property_row_count"
         },                {
-            "fqsen": "\\database\\DB\u003A\u003A\u0024username",
-            "name": "username",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A\u0024where_clause_sql",
+            "name": "where_clause_sql",
             "summary": "",
-            "url": "classes/database-DB.html#property_username"
+            "url": "classes/Migliori-Database-Db.html#property_where_clause_sql"
         },                {
-            "fqsen": "\\database\\Pagination",
+            "fqsen": "\\Migliori\\Database\\Db\u003A\u003A\u0024where_clause_placeholders",
+            "name": "where_clause_placeholders",
+            "summary": "",
+            "url": "classes/Migliori-Database-Db.html#property_where_clause_placeholders"
+        },                {
+            "fqsen": "\\Migliori\\Database\\Pagination",
             "name": "Pagination",
             "summary": "Pagination\u0020class",
-            "url": "classes/database-Pagination.html"
+            "url": "classes/Migliori-Database-Pagination.html"
         },                {
-            "fqsen": "\\database\\Pagination\u003A\u003A\u0024pagine",
+            "fqsen": "\\Migliori\\Database\\Pagination\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "Constructor\u0020for\u0020the\u0020Pagination\u0020class.",
+            "url": "classes/Migliori-Database-Pagination.html#method___construct"
+        },                {
+            "fqsen": "\\Migliori\\Database\\Pagination\u003A\u003AisConnected\u0028\u0029",
+            "name": "isConnected",
+            "summary": "Checks\u0020if\u0020the\u0020database\u0020connection\u0020is\u0020established.",
+            "url": "classes/Migliori-Database-Pagination.html#method_isConnected"
+        },                {
+            "fqsen": "\\Migliori\\Database\\Pagination\u003A\u003A\u0024pagine",
             "name": "pagine",
             "summary": "",
-            "url": "classes/database-Pagination.html#property_pagine"
+            "url": "classes/Migliori-Database-Pagination.html#property_pagine"
         },                {
-            "fqsen": "\\database\\Pagination\u003A\u003AsetOptions\u0028\u0029",
-            "name": "setOptions",
-            "summary": "Sets\u0020form\u0020layout\u0020options\u0020to\u0020match\u0020your\u0020framework",
-            "url": "classes/database-Pagination.html#method_setOptions"
-        },                {
-            "fqsen": "\\database\\Pagination\u003A\u003AaddRequestLimit\u0028\u0029",
-            "name": "addRequestLimit",
-            "summary": "Adds\u0020a\u0020request\u0020limit\u0020to\u0020the\u0020PDO\u0020settings\u0020based\u0020on\u0020the\u0020current\u0020page\u0020and\u0020items\u0020per\u0020page.",
-            "url": "classes/database-Pagination.html#method_addRequestLimit"
-        },                {
-            "fqsen": "\\database\\Pagination\u003A\u003AgetRecords\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Pagination\u003A\u003AgetRecords\u0028\u0029",
             "name": "getRecords",
-            "summary": "Executes\u0020the\u0020selected\u0020PDO\u0020function\u0020based\u0020on\u0020the\u0020provided\u0020PDO\u0020settings\u0020array.",
-            "url": "classes/database-Pagination.html#method_getRecords"
+            "summary": "Retrieves\u0020the\u0020records\u0020for\u0020the\u0020pagination.",
+            "url": "classes/Migliori-Database-Pagination.html#method_getRecords"
         },                {
-            "fqsen": "\\database\\Pagination\u003A\u003AremovePreviousQuerystring\u0028\u0029",
+            "fqsen": "\\Migliori\\Database\\Pagination\u003A\u003AremovePreviousQuerystring\u0028\u0029",
             "name": "removePreviousQuerystring",
             "summary": "Removes\u0020any\u0020previous\u0020querystring\u0020parameters\u0020from\u0020the\u0020URL.",
-            "url": "classes/database-Pagination.html#method_removePreviousQuerystring"
+            "url": "classes/Migliori-Database-Pagination.html#method_removePreviousQuerystring"
         },                {
-            "fqsen": "\\database\\Pagination\u003A\u003A\u0024active_class",
-            "name": "active_class",
+            "fqsen": "\\Migliori\\Database\\Pagination\u003A\u003A\u0024pdo_params",
+            "name": "pdo_params",
             "summary": "",
-            "url": "classes/database-Pagination.html#property_active_class"
+            "url": "classes/Migliori-Database-Pagination.html#property_pdo_params"
         },                {
-            "fqsen": "\\database\\Pagination\u003A\u003A\u0024disabled_class",
-            "name": "disabled_class",
+            "fqsen": "\\Migliori\\Database\\Pagination\u003A\u003A\u0024default_options",
+            "name": "default_options",
+            "summary": "Default\u0020options",
+            "url": "classes/Migliori-Database-Pagination.html#property_default_options"
+        },                {
+            "fqsen": "\\Migliori\\Database\\Pagination\u003A\u003A\u0024options",
+            "name": "options",
             "summary": "",
-            "url": "classes/database-Pagination.html#property_disabled_class"
+            "url": "classes/Migliori-Database-Pagination.html#property_options"
         },                {
-            "fqsen": "\\database\\Pagination\u003A\u003A\u0024pagination_class",
-            "name": "pagination_class",
-            "summary": "",
-            "url": "classes/database-Pagination.html#property_pagination_class"
-        },                {
-            "fqsen": "\\database\\Pagination\u003A\u003A\u0024first_markup",
-            "name": "first_markup",
-            "summary": "",
-            "url": "classes/database-Pagination.html#property_first_markup"
-        },                {
-            "fqsen": "\\database\\Pagination\u003A\u003A\u0024previous_markup",
-            "name": "previous_markup",
-            "summary": "",
-            "url": "classes/database-Pagination.html#property_previous_markup"
-        },                {
-            "fqsen": "\\database\\Pagination\u003A\u003A\u0024next_markup",
-            "name": "next_markup",
-            "summary": "",
-            "url": "classes/database-Pagination.html#property_next_markup"
-        },                {
-            "fqsen": "\\database\\Pagination\u003A\u003A\u0024last_markup",
-            "name": "last_markup",
-            "summary": "",
-            "url": "classes/database-Pagination.html#property_last_markup"
-        },                {
-            "fqsen": "\\database\\Pagination\u003A\u003A\u0024results",
+            "fqsen": "\\Migliori\\Database\\Pagination\u003A\u003A\u0024results",
             "name": "results",
             "summary": "",
-            "url": "classes/database-Pagination.html#property_results"
+            "url": "classes/Migliori-Database-Pagination.html#property_results"
         },                {
-            "fqsen": "\\database\\Pagination\u003A\u003A\u0024rewrite_transition",
-            "name": "rewrite_transition",
+            "fqsen": "\\Migliori\\Database\\PdoQueryParams",
+            "name": "PdoQueryParams",
             "summary": "",
-            "url": "classes/database-Pagination.html#property_rewrite_transition"
+            "url": "classes/Migliori-Database-PdoQueryParams.html"
         },                {
-            "fqsen": "\\database\\Pagination\u003A\u003A\u0024rewrite_extension",
-            "name": "rewrite_extension",
+            "fqsen": "\\Migliori\\Database\\PdoQueryParams\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "PdoQueryParams\u0020constructor.",
+            "url": "classes/Migliori-Database-PdoQueryParams.html#method___construct"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoQueryParams\u003A\u003AaddRequestLimit\u0028\u0029",
+            "name": "addRequestLimit",
+            "summary": "Adds\u0020a\u0020request\u0020limit\u0020for\u0020pagination\u0020to\u0020the\u0020PDO\u0020settings\u0020based\u0020on\u0020the\u0020current\u0020page\u0020and\u0020items\u0020per\u0020page.",
+            "url": "classes/Migliori-Database-PdoQueryParams.html#method_addRequestLimit"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoQueryParams\u003A\u003AgetDebug\u0028\u0029",
+            "name": "getDebug",
+            "summary": "Get\u0020the\u0020debug\u0020flag.",
+            "url": "classes/Migliori-Database-PdoQueryParams.html#method_getDebug"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoQueryParams\u003A\u003AgetSql\u0028\u0029",
+            "name": "getSql",
+            "summary": "Get\u0020the\u0020SQL\u0020query.",
+            "url": "classes/Migliori-Database-PdoQueryParams.html#method_getSql"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoQueryParams\u003A\u003AgetPlaceholders\u0028\u0029",
+            "name": "getPlaceholders",
+            "summary": "Get\u0020the\u0020placeholders.",
+            "url": "classes/Migliori-Database-PdoQueryParams.html#method_getPlaceholders"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoQueryParams\u003A\u003A\u0024sql",
+            "name": "sql",
+            "summary": "Class\u0020PdoQueryParams\nRepresents\u0020the\u0020parameters\u0020of\u0020a\u0020PDO\u0020query.",
+            "url": "classes/Migliori-Database-PdoQueryParams.html#property_sql"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoQueryParams\u003A\u003A\u0024placeholders",
+            "name": "placeholders",
             "summary": "",
-            "url": "classes/database-Pagination.html#property_rewrite_extension"
+            "url": "classes/Migliori-Database-PdoQueryParams.html#property_placeholders"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoQueryParams\u003A\u003A\u0024debug",
+            "name": "debug",
+            "summary": "",
+            "url": "classes/Migliori-Database-PdoQueryParams.html#property_debug"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoSelectParams",
+            "name": "PdoSelectParams",
+            "summary": "",
+            "url": "classes/Migliori-Database-PdoSelectParams.html"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoSelectParams\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "PdoSelectParams\u0020constructor.",
+            "url": "classes/Migliori-Database-PdoSelectParams.html#method___construct"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoSelectParams\u003A\u003AaddRequestLimit\u0028\u0029",
+            "name": "addRequestLimit",
+            "summary": "Adds\u0020a\u0020request\u0020limit\u0020for\u0020pagination\u0020to\u0020the\u0020PDO\u0020settings\u0020based\u0020on\u0020the\u0020current\u0020page\u0020and\u0020items\u0020per\u0020page.",
+            "url": "classes/Migliori-Database-PdoSelectParams.html#method_addRequestLimit"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoSelectParams\u003A\u003AgetFrom\u0028\u0029",
+            "name": "getFrom",
+            "summary": "Get\u0020the\u0020table\u0020name\u0020from\u0020which\u0020to\u0020select.",
+            "url": "classes/Migliori-Database-PdoSelectParams.html#method_getFrom"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoSelectParams\u003A\u003AgetValues\u0028\u0029",
+            "name": "getValues",
+            "summary": "Get\u0020the\u0020values\u0020to\u0020select.",
+            "url": "classes/Migliori-Database-PdoSelectParams.html#method_getValues"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoSelectParams\u003A\u003AgetWhere\u0028\u0029",
+            "name": "getWhere",
+            "summary": "Get\u0020the\u0020WHERE\u0020clause\u0020for\u0020the\u0020SELECT\u0020query.",
+            "url": "classes/Migliori-Database-PdoSelectParams.html#method_getWhere"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoSelectParams\u003A\u003AgetExtras\u0028\u0029",
+            "name": "getExtras",
+            "summary": "Get\u0020any\u0020extra\u0020parameters\u0020for\u0020the\u0020SELECT\u0020query.",
+            "url": "classes/Migliori-Database-PdoSelectParams.html#method_getExtras"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoSelectParams\u003A\u003AgetDebug\u0028\u0029",
+            "name": "getDebug",
+            "summary": "Get\u0020the\u0020debug\u0020mode\u0020for\u0020the\u0020SELECT\u0020query.",
+            "url": "classes/Migliori-Database-PdoSelectParams.html#method_getDebug"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoSelectParams\u003A\u003A\u0024from",
+            "name": "from",
+            "summary": "Class\u0020PdoSelectParams\nRepresents\u0020the\u0020parameters\u0020for\u0020a\u0020PDO\u0020select\u0020query.",
+            "url": "classes/Migliori-Database-PdoSelectParams.html#property_from"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoSelectParams\u003A\u003A\u0024values",
+            "name": "values",
+            "summary": "",
+            "url": "classes/Migliori-Database-PdoSelectParams.html#property_values"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoSelectParams\u003A\u003A\u0024where",
+            "name": "where",
+            "summary": "",
+            "url": "classes/Migliori-Database-PdoSelectParams.html#property_where"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoSelectParams\u003A\u003A\u0024extras",
+            "name": "extras",
+            "summary": "",
+            "url": "classes/Migliori-Database-PdoSelectParams.html#property_extras"
+        },                {
+            "fqsen": "\\Migliori\\Database\\PdoSelectParams\u003A\u003A\u0024debug",
+            "name": "debug",
+            "summary": "",
+            "url": "classes/Migliori-Database-PdoSelectParams.html#property_debug"
         },                {
             "fqsen": "\\",
             "name": "\\",
             "summary": "",
             "url": "namespaces/default.html"
         },                {
-            "fqsen": "\\database",
-            "name": "database",
+            "fqsen": "\\Migliori\\Database",
+            "name": "Database",
             "summary": "",
-            "url": "namespaces/database.html"
+            "url": "namespaces/migliori-database.html"
+        },                {
+            "fqsen": "\\Migliori",
+            "name": "Migliori",
+            "summary": "",
+            "url": "namespaces/migliori.html"
         }            ]
 );

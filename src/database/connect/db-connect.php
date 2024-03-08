@@ -33,9 +33,9 @@ if (defined('PHPUNIT_TESTSUITE_RUNNIG') || $_SERVER['REMOTE_ADDR'] == '127.0.0.1
     define('DB_NAME', 'sampledatabase');
 } else {
     // settings for remote server
-    define('DB_HOST', 'your-db-host.com');
+    define('DB_HOST', 'localhost');
     define('DB_PORT', ''); // leave empty to use the default port
-    define('DB_USER', 'username');
-    define('DB_PASS', 'password');
-    define('DB_NAME', 'sampledatabase');
+    define('DB_USER', 'me');
+    define('DB_PASS', 'mypassword');
+    define('DB_NAME', 'mydatabase');
 }
