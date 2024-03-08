@@ -5,7 +5,7 @@ use Migliori\Database\Db;
 require_once '../../../autoload.php';
 
 // register the database connection settings
-require_once '../connect/db-connect.php';
+require_once '../src/connect/db-connect.php';
 
 // connect, then test the connection and retrieve the error if the database is not connected
 $db = new Db();

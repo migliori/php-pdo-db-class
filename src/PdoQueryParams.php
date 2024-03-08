@@ -7,7 +7,7 @@ class PdoQueryParams
     /**
      * Class PdoQueryParams
      * Represents the parameters of a PDO query.
-     * PdoQueryParams are used in the Pagination class constructor to set the PDO parameters for the DB::Query function
+     * PdoQueryParams are used in the Pagination class constructor to set the PDO parameters for the Db::Query function
      *
      * Example of use:
      *

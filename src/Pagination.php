@@ -58,7 +58,7 @@ use Migliori\Database\PdoQueryParams;
  * - `rewrite_transition`: This is the character that is used to indicate the start of the querystring parameters in the URL (for example, `-` for `example.com/page-1-2.html`).
  * - `rewrite_extension`: This is the extension that is added to the end of the URL when the links are being rewritten (for example, `.html`).
  */
-class Pagination extends DB
+class Pagination extends Db
 {
     public string  $pagine = '';
     private PdoSelectParams|PdoQueryParams $pdo_params;
@@ -95,16 +95,6 @@ class Pagination extends DB
 
         // call the db constructor
         parent::__construct();
-    }
-
-    /**
-     * Checks if the database connection is established.
-     *
-     * @return bool Returns true if the database connection is established, false otherwise.
-     */
-    public function isConnected(): bool
-    {
-        return parent::isConnected();
     }
 
     /**

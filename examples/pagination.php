@@ -6,7 +6,7 @@ use Migliori\Database\PdoSelectParams;
 require_once '../../../autoload.php';
 
 // register the database connection settings
-require_once '../connect/db-connect.php';
+require_once '../src/connect/db-connect.php';
 
 // create a new PdoSelectParams object with the parameters for the query
 $from   = 'customers';

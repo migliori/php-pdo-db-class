@@ -7,7 +7,7 @@ class PdoSelectParams
     /**
      * Class PdoSelectParams
      * Represents the parameters for a PDO select query.
-     * PdoSelectParams are used in the Pagination class constructor to set the PDO parameters for the DB::Select function
+     * PdoSelectParams are used in the Pagination class constructor to set the PDO parameters for the Db::Select function
      *
      * Example of use:
      *

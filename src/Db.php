@@ -7,26 +7,26 @@ namespace Migliori\Database;
 use PDO;
 
 /**
- * DB class - PDO Database abstraction layer class
+ * Db class - PDO Database abstraction layer class
  *
- * The DB class is a database abstraction layer that provides a simple, consistent interface
+ * The Db class is a database abstraction layer that provides a simple, consistent interface
  * for interacting with different types of databases. It handles connection management, query execution,
  * pagination and result processing, allowing developers to focus on the business logic of their application.
  *
  * Full documentation with code examples is available here: {@link [https://www.phpformbuilder.pro/documentation/php-pdo-database-class.php] [https://www.phpformbuilder.pro/documentation/php-pdo-database-class.php]}
  *
- * The DB class is designed to be flexible and extensible, allowing developers to easily customize it
+ * The Db class is designed to be flexible and extensible, allowing developers to easily customize it
  * to meet their specific needs. It supports multiple database types, including MySQL, PostgreSQL, Firebird,
  * and Oracle, and can be easily extended to support additional databases.
 
- * The DB class is designed to be easy to use and understand. It provides a set of simple, intuitive methods
+ * The Db class is designed to be easy to use and understand. It provides a set of simple, intuitive methods
  * for executing queries and retrieving data, and it automatically handles error handling and debugging.
  * This makes it easy for developers to quickly get up and running with the class, without having to worry
  * about low-level details such as database connections and query execution.
 
- * In addition, the DB class is designed to be highly efficient and fast. It uses the latest database features
+ * In addition, the Db class is designed to be highly efficient and fast. It uses the latest database features
  * and optimization techniques to ensure that queries are executed quickly and efficiently, without sacrificing
- * performance. This means that applications built using the DB class can scale easily and perform well under
+ * performance. This means that applications built using the Db class can scale easily and perform well under
  * load, even with large amounts of data.
  *
  * @api
