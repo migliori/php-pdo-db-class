@@ -1,0 +1,12 @@
+# https://phpstan.org/config-reference#phpversion
+# https://phpstan.org/user-guide/rule-levels
+parameters:
+	level: 9
+	paths:
+		- src
+	excludePaths:
+		analyseAndScan:
+			- src/Db-BACKUP.php
+		analyse:
+			- vendor/*
+	phpVersion: 70400 # PHP 7.4

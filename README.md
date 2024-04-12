@@ -1,7 +1,9 @@
 
-# PHP PDO Database class
+# [DEPRECATED] PHP PDO Database class
 
 ![Static Badge](https://img.shields.io/badge/php%207.4+-fafafa?logo=php) [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+
+> :warning: **DEPRECATION NOTICE**: This package is no longer maintained and has been deprecated. It's been replaced by [PowerLite PDO](https://www.powerlitepdo.com). Please visit the [PowerLite PDO GitHub repository](https://github.com/migliori/power-lite-pdo) for the latest updates and support.
 
 This DB class provides a set of simple, intuitive methods for executing queries and retrieving data. It handles pagination, error handling and debugging.
 
