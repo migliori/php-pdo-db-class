@@ -877,7 +877,7 @@ class Db
         $this->whereClause($where);
 
         if (!empty($this->where_clause_sql)) {
-            $sql['where'] = $this->where_clause_sql;
+            $sql .= $this->where_clause_sql;
         }
 
         $values = array_merge($values, $this->where_clause_placeholders);
